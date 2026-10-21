@@ -1,0 +1,100 @@
+import wollok.game.*
+
+program juego {
+  game.width(15)
+  game.height(7)
+  game.cellSize(75)
+  game.boardGround("FondoDesierto.png")
+  game.title("Juego")
+
+  // Usamos addVisual en vez de addVisualCharacter para tener control total del movimiento
+  game.addVisual(personaje)
+  game.addVisual(caja)
+  game.addVisual(textoDeInicio)
+  game.addVisual(invisible)
+
+  // quitar "//" si quieren poner el sonido
+  // const ambienteViento = game.sound("sonido-de-viento.wav")
+  // ambienteViento.shouldLoop(true)
+  // ambienteViento.volume(0.1)
+  // game.schedule(500, { ambienteViento.play()} )
+  
+  game.schedule(3000, { game.removeVisual(textoDeInicio) })
+
+  // Cuando el personaje colisiona con la caja
+  game.onCollideDo(personaje, { elemento =>
+    elemento.recibirColisionDe(personaje)
+  })
+
+  // Al presionar 'e', cargamos o descargamos la caja (HAY QUE ESTAR CERCA)
+  keyboard.e().onPressDo({ 
+    caja.cargarOAlternar() 
+  })
+
+  // Movimiento manual con las flechas del teclado
+  keyboard.up().onPressDo({ personaje.moverseA(personaje.position().up(1)) })
+  keyboard.down().onPressDo({ personaje.moverseA(personaje.position().down(1)) })
+  keyboard.left().onPressDo({ personaje.moverseA(personaje.position().left(1)) })
+  keyboard.right().onPressDo({ personaje.moverseA(personaje.position().right(1)) })
+
+  game.start()
+}
+
+object colores {
+  const property negro = "000000"
+}
+
+object textoDeInicio {
+
+  method position() = game.center()
+  method text() = "El Juego ha empezado!"
+  method textColor() = colores.negro()
+
+}
+
+object invisible {
+  method position() = game.origin()
+
+  method recibirColisionDe(personaje) {
+    game.say(personaje, "Cuidado!")
+  }
+}
+
+object personaje {
+  var property position = game.origin()
+
+  method image() = "Iron Spiderman.png"
+
+  // Método que mueve al personaje y arrastra la caja si está cargada
+  method moverseA(nuevaPosicion) {
+    position = nuevaPosicion
+    
+    // Si la caja está cargada por el personaje, la movemos con él (por ejemplo, un casillero arriba)
+    if (caja.cargadaPorPersonaje()) {
+      caja.position(nuevaPosicion.up(1))
+    }
+  }
+}
+
+object caja {
+  var property position = game.center()
+  var property cargadaPorPersonaje = false
+
+  method image() = "Caja.png"
+
+  method cargarOAlternar() {
+    // Si el personaje está en la misma posición o al lado, alternamos el estado de carga
+    if (personaje.position().distance(position) <= 1) {
+      cargadaPorPersonaje = not cargadaPorPersonaje
+      
+      if (cargadaPorPersonaje) {
+        // Al cargarla, la posicionamos inmediatamente arriba del personaje
+        position = personaje.position().up(1)
+      }
+    }
+  }
+
+  method recibirColisionDe(personaje) {
+    game.say(personaje, "Ahora nadie podra encontrarme!")
+  }
+}
