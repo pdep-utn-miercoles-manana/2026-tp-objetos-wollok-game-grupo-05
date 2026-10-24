@@ -1,0 +1,20 @@
+import wollok.game.*
+import Personajes.*
+import Objetos.*
+import Ubicaciones.*
+
+program juego {
+  game.title("Juego")
+  game.width(15)
+  game.height(7)
+  game.cellSize(75)
+  personaje.configurarTeclas()
+  mapa.primeraUbicacion()
+
+  // Cuando el personaje colisiona con la caja
+  game.onCollideDo(personaje, { elemento =>
+    elemento.recibirColisionDe(personaje)
+  })
+
+  game.start()
+}
