@@ -1,7 +1,7 @@
 import wollok.game.*
 import Personajes.*
 import Objetos.*
-import Ubicaciones.*
+import Mapa.*
 
 program juego {
   game.title("Juego")

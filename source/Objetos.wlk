@@ -1,13 +1,11 @@
 import Personajes.*
-import Ubicaciones.*
 
 object colores {
   const property negro = "000000"
   const property blanco = "FFFFFF"
 }
 
-object textoPista {
-
+object textoPista{
   var texto = "Objetivo: Habla con algun huesped"
   var colorActual = colores.blanco()
 
@@ -20,7 +18,6 @@ object textoPista {
     colorActual = nuevoColor
     
   }
-
 }
 
  object invisible {
@@ -31,29 +28,35 @@ object textoPista {
 // } 
 }
 
-object caja {
+object caja{
   var property position = game.center()
   var property cargadaPorPersonaje = false
+  var esSolido = true
+
+  method esSolido() = esSolido
 
   method image() = "Caja.png"
-
-  method cargadaPorPersonaje() = cargadaPorPersonaje
  
-  method cargarOAlternar() {
-    // Si el personaje está en la misma posición o al lado, alternamos el estado de carga
-    if (personaje.position().distance(position) <= 1) {
-      cargadaPorPersonaje = not cargadaPorPersonaje
-      
-      if (cargadaPorPersonaje) {
-        // Al cargarla, la posicionamos inmediatamente arriba del personaje
-        position = personaje.position().up(1)
-      }
+  method cargarOAlternar(posicionAdelante, ubicacionActual) {
+    // Si el personaje no esta cargando la caja y esta al lado,
+    // alternamos el estado de carga
+    if (cargadaPorPersonaje.negate() and personaje.position().distance(position) <= 1) {
+      cargadaPorPersonaje = true
+      esSolido = false
+      position = personaje.position().up(1)
+    } else if (cargadaPorPersonaje and ubicacionActual.esPosicionValida(posicionAdelante)) {{}
+      position = personaje.posicionAdelante()
+      cargadaPorPersonaje = false
+      esSolido = true
     }
   }
 }
 
-object carta {
+object carta{
   var property position = game.center()
+  const esSolido = false
+
+  method esSolido() = esSolido
 
   method image() = "written_paper.png"
 
