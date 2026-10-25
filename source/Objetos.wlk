@@ -1,4 +1,6 @@
 import Personajes.*
+import wollok.game.*
+  // Cuando el personaje colisiona con la caja
 
 object colores {
   const property negro = "000000"
@@ -40,7 +42,8 @@ object caja{
   method cargarOAlternar(posicionAdelante, ubicacionActual) {
     // Si el personaje no esta cargando la caja y esta al lado,
     // alternamos el estado de carga
-    if (cargadaPorPersonaje.negate() and personaje.position().distance(position) <= 1) {
+    if (cargadaPorPersonaje.negate() and 
+      personaje.position().distance(position) <= 1 and posicionAdelante == position) {
       cargadaPorPersonaje = true
       esSolido = false
       position = personaje.position().up(1)
@@ -50,6 +53,7 @@ object caja{
       esSolido = true
     }
   }
+
 }
 
 object carta{

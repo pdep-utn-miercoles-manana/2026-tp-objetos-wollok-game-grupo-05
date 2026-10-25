@@ -31,6 +31,10 @@ object personaje {
     keyboard.h().onPressDo({ 
       self.hablarPrimerHuesped()
     })
+
+    game.onCollideDo(self, { elemento =>
+    elemento.recibirColisionDe(self)
+    })
   }
 
   method moverseA(nuevaPosicion, nuevaOrientacion) {
@@ -81,7 +85,7 @@ object personaje {
 
 // para hacer mas huespedes podemos hacer una clase
 object huesped {
-  var property position = game.at(9, 4)
+  var property position = game.at(11, 3)
   const esSolido = false
 
   method esSolido() = esSolido

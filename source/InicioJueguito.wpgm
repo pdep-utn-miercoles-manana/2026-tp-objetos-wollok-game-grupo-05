@@ -11,10 +11,5 @@ program juego {
   personaje.configurarTeclas()
   mapa.primeraUbicacion()
 
-  // Cuando el personaje colisiona con la caja
-  game.onCollideDo(personaje, { elemento =>
-    elemento.recibirColisionDe(personaje)
-  })
-
   game.start()
 }
