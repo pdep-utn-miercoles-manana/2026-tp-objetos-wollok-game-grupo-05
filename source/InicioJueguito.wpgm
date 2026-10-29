@@ -9,7 +9,8 @@ program juego {
   game.height(7)
   game.cellSize(75)
   personaje.configurarTeclas()
-  mapa.primeraUbicacion()
+  mapa.mainMenu()
+  game.boardGround("Mainmenufeo.png")
 
   game.start()
 }
