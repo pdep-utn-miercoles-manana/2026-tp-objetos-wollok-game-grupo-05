@@ -31,9 +31,47 @@ object personaje {
     keyboard.h().onPressDo({ 
       self.hablarPrimerHuesped()
     })
+    // Al presionar 'c', ingresamos el codigo de la caja fuerte
+    keyboard.c().onPressDo({ 
+      cajaFuerte.comenzarIngreso()
+    })
+
+    // detectar los numeros de la caja fuerte (solo toma combinaciones)
+    keyboard.num3().onPressDo({
+    cajaFuerte.ingresarCodigo("3")
+    })
+
+    keyboard.num9().onPressDo({
+    cajaFuerte.ingresarCodigo("9")
+    })
+
+    keyboard.num5().onPressDo({
+        cajaFuerte.ingresarCodigo("5")
+    })
+
+    keyboard.num1().onPressDo({
+        cajaFuerte.ingresarCodigo("1")
+    })
+
+    // al precionar enter confirma el codigo
+    keyboard.enter().onPressDo({
+    cajaFuerte.confirmarCodigo()
+    })
+
+    // Al presionar 'a', leemos el expediente 
+    keyboard.a().onPressDo({ 
+      self.leerExpediente()
+    })
 
     game.onCollideDo(self, { elemento =>
     elemento.recibirColisionDe(self)
+    })
+
+    // Al presionar 'l', leemos la carta
+    keyboard.l().onPressDo({ 
+      game.addVisual(textoCarta)
+      game.schedule(3000, { game.removeVisual(textoCarta) })
+      textoPista.cambiarTexto("Objetivo: Busca la caja fuerte", colores.blanco())
     })
   }
 
@@ -80,6 +118,24 @@ object personaje {
     if(self.position().distance(huesped.position()) < 1){
       hablarConPrimerHuesped.hablar()
     }
+  }
+
+  var turnoDeHablar = 0
+  method leerExpediente() {
+    
+
+    if(turnoDeHablar == 0){
+      game.say(self, "Aqui hay informacion sobre el huesped desaparecido")
+    } else if (turnoDeHablar == 1){
+      game.say(self, "Se hospedaba en la habitacion 302")
+    } else {
+      game.say(self, "Quizas alli encuentre mas pistas y logre salir de aquí")
+      textoPista.cambiarTexto("Objetivo: Consigue la llave de la habitacion 302", colores.blanco())
+    }
+
+    turnoDeHablar += 1
+    
+
   }
 }
 

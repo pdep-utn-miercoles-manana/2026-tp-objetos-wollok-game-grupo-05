@@ -117,7 +117,8 @@ const escalerasDeBajadaHaciaDeposito = new PuntoDeAcceso (
   position = game.at(1,2),
   objetosAAgregar = [escalerasDeSubidaHaciaPasillo1, 
                      carta, 
-                     caja],
+                     caja,
+                     puertaEntrarDeposito],
   objetosAEliminar = [escalerasDeBajadaHaciaDeposito, 
                       alfombraHaciaHabitacionPersonaje, 
                       huesped,
@@ -170,3 +171,15 @@ const escalerasDeBajadaHaciaPasillo1 = new PuntoDeAcceso (
   nuevaUbicacion = pasillo1,
   imagen = "EscalerasBajada_Invertida.png"
 )
+
+const puertaEntrarDeposito = new PuntoDeAcceso (
+  position = game.at(10, 0), 
+  objetosAAgregar = [cajaFuerte],
+  objetosAEliminar = [escalerasDeSubidaHaciaPasillo1, 
+                      caja, 
+                      carta],
+  fondoDestino = fondoPasillo,
+  posicionNuevaPersonajeX = 2,
+  posicionNuevaPersonajeY = 2,
+  nuevaUbicacion = pasillo1,
+  imagen = "puerta.png")

@@ -66,5 +66,77 @@ object carta{
 
   method recibirColisionDe(personaje) {
     game.say(personaje, "Aqui hay una carta")
+
+  game.schedule(2000, {
+        game.addVisual(invisible)
+    })
+
   }
+
+}
+
+object textoCarta {
+  var texto = "REGISTO DE HUESPEDES
+    Y EMPLEADOS GUARDADOS EN
+    LA CAJA FUERTE DEL 
+    DEPOSITO DEL HOTEL
+    
+    CODIGO 3951"
+
+  method position() = game.center()
+  method text() = texto
+  method textColor() = colores.blanco()
+
+  method cambiarTexto(nuevoTexto, nuevoColor) {
+    texto = nuevoTexto
+    
+  }
+
+}
+
+object cajaFuerte{
+  const codigoCorrecto = "3951"
+  var codigoIngresado = ""
+  var abierta = false 
+  var ingresandoCodigo = false
+
+  var property position = game.at(9, 3)
+  const esSolido = false
+
+  method esSolido() = esSolido
+
+  method image() = "safety_box.png"
+
+  method recibirColisionDe(personaje) {
+    game.say(personaje, "Se necesita un codigo")
+
+  }
+
+  method ingresarCodigo(unCodigo) {
+    if(ingresandoCodigo && !abierta){
+      codigoIngresado += unCodigo
+      game.say(personaje, codigoIngresado)
+    }
+    
+  }
+  method confirmarCodigo(){
+    if(codigoIngresado == codigoCorrecto){
+      abierta = true
+      ingresandoCodigo = false
+      personaje.leerExpediente()
+    } else {
+    game.say(personaje, "Este codigo no funciona")
+    codigoIngresado = ""
+    ingresandoCodigo = false
+    }
+  } 
+  method comenzarIngreso() {
+    if(self.position().distance(personaje.position()) <= 1 && !abierta){
+      ingresandoCodigo = true
+      codigoIngresado = ""
+      game.say(personaje, "Ahora podes ingresar el codigo")
+    }
+    
+  }
+
 }
