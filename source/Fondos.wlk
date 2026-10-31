@@ -10,4 +10,6 @@ class Fondo {
 }
 
 const fondoHabitacion = new Fondo (imagen = "Habitacion.png")
-const fondoPasillo = new Fondo (imagen = "Pasillo_Sin_Puertas.png")
+const fondoPasilloSubsuelo = new Fondo (imagen = "PasilloSubsuelo.png")
+const fondoPasilloPiso1 = new Fondo (imagen = "PasilloPiso1.png")
+const fondoPasilloPiso2 = new Fondo(imagen = "PasilloPiso2.png")
