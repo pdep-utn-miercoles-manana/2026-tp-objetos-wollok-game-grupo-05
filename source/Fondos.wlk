@@ -9,5 +9,5 @@ class Fondo {
     method esSolido() = false
 }
 
-const fondoHabitacionInicio = new Fondo (imagen = "Habitacion_Inicio.png")
+const fondoHabitacion = new Fondo (imagen = "Habitacion.png")
 const fondoPasillo = new Fondo (imagen = "Pasillo_Sin_Puertas.png")
