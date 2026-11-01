@@ -1,16 +1,20 @@
 
 class Fondo {
-    const imagen
+    var imagen
 
     method position() = game.origin()
 
     method image() = imagen
 
     method esSolido() = false
+
+    method alternarImagen(nuevaImagen) {
+        imagen = nuevaImagen
+    }
 }
 
 const fondoInicio = new Fondo (imagen = "Inicio.png")
-const fondoSeleccionDePersonaje = new Fondo (imagen = "SeleccionDePersonaje.png")
+const fondoSeleccionDePersonaje = new Fondo (imagen = "SeleccionDePersonajeHombre.png")
 const fondoHabitacion = new Fondo (imagen = "Habitacion.png")
 const fondoPasilloSubsuelo = new Fondo (imagen = "PasilloSubsuelo.png")
 const fondoPasilloPiso1 = new Fondo (imagen = "PasilloPiso1.png")

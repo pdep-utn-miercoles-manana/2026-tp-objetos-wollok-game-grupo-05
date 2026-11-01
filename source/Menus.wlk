@@ -22,16 +22,18 @@ object menuSeleccionDePersonaje {
 
   method configurarMenu() {
     game.addVisual(fondo)
-    keyboard.left().onPressDo({ self.cambiarOpcion("Hombre") })
+    keyboard.left().onPressDo({ self.cambiarOpcion("Hombre")})
     keyboard.right().onPressDo({ self.cambiarOpcion("Mujer") })
-    keyboard.enter().onPressDo({ self.avanzarAJuego() })
+    keyboard.e().onPressDo({ self.avanzarAJuego() })
   }
 
   method cambiarOpcion(opcionDePersonaje) {
     opcionElegida = opcionDePersonaje
+    fondo.alternarImagen("SeleccionDePersonaje" + opcionDePersonaje + ".png")
   }
 
   method avanzarAJuego() {
+    game.clear()
     personaje.opcionDePersonaje(opcionElegida)
     game.removeVisual(fondo)
     personaje.configurarTeclas()
