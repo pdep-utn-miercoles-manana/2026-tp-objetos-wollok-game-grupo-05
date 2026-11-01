@@ -7,7 +7,7 @@ object mapa {
   var fondoActual = fondoHabitacionInicio
 
   method mainMenu() {
-    keyboard.x().onPressDo({ self.selectorDePersonaje() }) 
+    keyboard.enter().onPressDo({ self.selectorDePersonaje() }) 
   }
 
   method selectorDePersonaje() {
@@ -72,6 +72,7 @@ const pasillo2 = pasillo1
 const habitacionPersonaje = new Ubicacion (anchoMin = 4, anchoMax = 10, alturaMin = 0, alturaMax = 5)
 const habitacionHuesped = habitacionPersonaje
 const deposito = habitacionPersonaje
+const mainMenuFeo = new Ubicacion (anchoMin = 4, anchoMax = 10, alturaMin = 0, alturaMax = 5)
 
 // El orden en que se ponen los objetos a agregar importa
 class PuntoDeAcceso {
