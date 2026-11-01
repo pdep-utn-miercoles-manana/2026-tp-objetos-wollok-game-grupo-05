@@ -12,10 +12,10 @@ object mapa {
 
   method selectorDePersonaje() {
     game.boardGround("ElegiTuPJ.png")
-    keyboard.left().onPressDo({ self.primeraUbicacion() })
-    keyboard.left().onPressDo({ personaje.opcionDePersonaje("Hombre") })
-    keyboard.right().onPressDo({ self.primeraUbicacion() })
-    keyboard.right().onPressDo({ personaje.opcionDePersonaje("Mujer") })
+    keyboard.o().onPressDo({ self.primeraUbicacion() })
+    keyboard.o().onPressDo({ personaje.opcionDePersonaje("Hombre") })
+    keyboard.p().onPressDo({ self.primeraUbicacion() })
+    keyboard.p().onPressDo({ personaje.opcionDePersonaje("Mujer") })
     keyboard.x().onPressDo({ game.schedule(500, { game.say(personaje, "Busquemos pistas") }) })
   }
 
