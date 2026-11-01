@@ -11,7 +11,7 @@ object textoPista{
   var texto = "Objetivo: Habla con algun huesped"
   var colorActual = colores.blanco()
 
-  method position() = game.at(7, 6)
+  method position() = game.at(2, 6)
   method text() = texto
   method textColor() = colorActual
 
