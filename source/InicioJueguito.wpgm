@@ -2,14 +2,14 @@ import wollok.game.*
 import Personajes.*
 import Objetos.*
 import Mapa.*
+import Menus.*
 
 program juego {
   game.title("Juego")
   game.width(15)
   game.height(7)
   game.cellSize(75)
-  personaje.configurarTeclas()
-  mapa.primeraUbicacion()
-
+  menuInicio.configurarMenu()
+  
   game.start()
 }

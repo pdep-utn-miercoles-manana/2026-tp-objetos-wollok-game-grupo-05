@@ -1,24 +1,25 @@
-
 import Objetos.*
 import Mapa.*
 
-// Hacer seleccion de personajes para poder elegir entre un personaje masculino y otro femenino
 object personaje {
+  var property personajeElegido = null
   var property position = game.center()
   var property orientacion = "down"
   var cargandoCaja = false
   var enMovimiento = false
   var ubicacionActual = null
 
-  method image() = "PersonajeHombre_" + orientacion + ".png"
+  method opcionDePersonaje(opcion) {
+    personajeElegido = opcion
+  }
+
+  method image() = "Personaje" + personajeElegido + "_" + orientacion + ".png"
 
   method configurarTeclas() {
     keyboard.up().onPressDo({ self.moverseA(self.position().up(1), "up")})
     keyboard.down().onPressDo({ self.moverseA(self.position().down(1), "down")})
     keyboard.left().onPressDo({ self.moverseA(self.position().left(1), "left")})
     keyboard.right().onPressDo({ self.moverseA(self.position().right(1), "right")})
-
-    game.schedule(500, { game.say(self, "Busquemos pistas") })
 
     // Al presionar 'e', cargamos o descargamos la caja
     // hay que estar cerca y la posicion adelante tiene que ser valida

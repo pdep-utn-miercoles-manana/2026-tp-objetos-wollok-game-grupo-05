@@ -6,7 +6,7 @@ import Fondos.*
 object mapa {
   var fondoActual = fondoHabitacion
 
-  method primeraUbicacion() {
+  method primeraUbicacion() { 
     // Usamos addVisual en vez de addVisualCharacter para tener control total del movimiento
     game.addVisual(personaje)
     self.configurarUbicacion(fondoActual, [puerta468HaciaPasilloPiso1], [])
