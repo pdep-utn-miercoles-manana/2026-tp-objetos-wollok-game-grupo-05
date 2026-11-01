@@ -1,113 +1,186 @@
+import wollok.game.*
 import Objetos.*
-import Mapa.*
+import Personajes.*
+import Fondos.*
 
-// Hacer seleccion de personajes para poder elegir entre un personaje masculino y otro femenino
-object personaje {
-  var property position = game.center()
-  var property orientacion = "down"
-  var cargandoCaja = false
-  var enMovimiento = false
-  var ubicacionActual = null
+object mapa {
+  var fondoActual = fondoHabitacionInicio
 
-  method image() = "PersonajeHombre_" + orientacion + ".png"
-
-  method configurarTeclas() {
-    keyboard.up().onPressDo({ self.moverseA(self.position().up(1), "up")})
-    keyboard.down().onPressDo({ self.moverseA(self.position().down(1), "down")})
-    keyboard.left().onPressDo({ self.moverseA(self.position().left(1), "left")})
-    keyboard.right().onPressDo({ self.moverseA(self.position().right(1), "right")})
-
-    //game.schedule(5000, { game.say(self, "Busquemos pistas") })
-
-    // Al presionar 'e', cargamos o descargamos la caja
-    // hay que estar cerca y la posicion adelante tiene que ser valida
-    keyboard.e().onPressDo({ 
-      caja.cargarOAlternar(self.posicionAdelante(), ubicacionActual) 
-      cargandoCaja = cargandoCaja.negate()
-    })
-
-    // Al presionar 'h', hablamos con el huesped 
-    keyboard.h().onPressDo({ 
-      self.hablarPrimerHuesped()
-    })
-
-    game.onCollideDo(self, { elemento =>
-    elemento.recibirColisionDe(self)
-    })
+  method mainMenu() {
+    keyboard.x().onPressDo({ self.selectorDePersonaje() }) 
   }
 
-  method moverseA(nuevaPosicion, nuevaOrientacion) {
-    if (enMovimiento.negate()){
-      orientacion = nuevaOrientacion
-
-      if(ubicacionActual.esPosicionValida(nuevaPosicion)){
-        enMovimiento = true
-        
-        game.schedule(200, {
-          position = nuevaPosicion
-
-          // Si la caja está siendo cargada por el personaje, se mueve con el
-          if (caja.cargadaPorPersonaje()) {
-            caja.position(nuevaPosicion.up(1))
-          }
-
-          enMovimiento = false
-        })
-      }
-    } 
+  method selectorDePersonaje() {
+    game.boardGround("ElegiTuPJ.png")
+    keyboard.left().onPressDo({ self.primeraUbicacion() })
+    keyboard.left().onPressDo({ personaje.opcionDePersonaje("Hombre") })
+    keyboard.right().onPressDo({ self.primeraUbicacion() })
+    keyboard.right().onPressDo({ personaje.opcionDePersonaje("Mujer") })
+    keyboard.x().onPressDo({ game.schedule(500, { game.say(personaje, "Busquemos pistas") }) })
   }
 
-  method cambiarUbicacion(nuevaUbicacion) {
-    ubicacionActual = nuevaUbicacion
+  method primeraUbicacion() { 
+    // Usamos addVisual en vez de addVisualCharacter para tener control total del movimiento
+    game.addVisual(personaje)
+    self.configurarUbicacion(fondoActual, [alfombraHaciaPasillo], [])
+    personaje.cambiarUbicacion(habitacionPersonaje)
   }
 
-  method posicionAdelante() {
-    return if (orientacion == "up") { 
-      position.up(1) }
-    else if (orientacion == "down") { 
-      position.down(1) }
-    else if (orientacion == "left") { 
-      position.left(1) }
-    else if (orientacion == "right") { 
-      position.right(1) }
-    else {
-      position
-    }
+  method configurarUbicacion (fondoNuevo, objetosAAgregar, objetosAEliminar) {
+    self.cambiarFondo(fondoNuevo)
+    self.cambiarObjetosDeUbicacion(objetosAAgregar, objetosAEliminar)
+    self.restablecerPersonajeYPista()
   }
 
-  method hablarPrimerHuesped() {
-    if(self.position().distance(huesped.position()) < 1){
-      hablarConPrimerHuesped.hablar()
-    }
+  method cambiarObjetosDeUbicacion(objetosAAgregar, objetosAEliminar) {
+    objetosAEliminar.forEach({ objeto => game.removeVisual(objeto)})
+    objetosAAgregar.forEach({ objeto => game.addVisual(objeto)})
+  }
+
+  method cambiarFondo(fondoNuevo){
+      game.removeVisual(fondoActual)
+      fondoActual = fondoNuevo
+      game.addVisual(fondoNuevo)
+  }
+
+  method restablecerPersonajeYPista(){
+    game.removeVisual(personaje)
+    game.removeVisual(textoPista)
+    game.addVisual(personaje)
+    game.addVisual(textoPista)
   }
 }
 
-// para hacer mas huespedes podemos hacer una clase
-object huesped {
-  var property position = game.at(11, 3)
+class Ubicacion {
+  const anchoMin
+  const anchoMax
+  const alturaMin
+  const alturaMax
+
+  method esPosicionValida(nuevaPosicion){
+    const dentroDelMapa = nuevaPosicion.x().between(anchoMin, anchoMax) and 
+                          nuevaPosicion.y().between(alturaMin, alturaMax)
+
+    const sinObstaculos = game.getObjectsIn(nuevaPosicion).all({ objeto => objeto.esSolido().negate()})
+
+    return dentroDelMapa and sinObstaculos
+  }
+}
+
+const pasillo1 = new Ubicacion (anchoMin = 1, anchoMax = 13, alturaMin = 2, alturaMax = 3)
+const pasillo2 = pasillo1
+const habitacionPersonaje = new Ubicacion (anchoMin = 4, anchoMax = 10, alturaMin = 0, alturaMax = 5)
+const habitacionHuesped = habitacionPersonaje
+const deposito = habitacionPersonaje
+const mainMenuFeo = new Ubicacion (anchoMin = 4, anchoMax = 10, alturaMin = 0, alturaMax = 5)
+
+// El orden en que se ponen los objetos a agregar importa
+class PuntoDeAcceso {
+  var property position
+  const objetosAAgregar
+  const objetosAEliminar
+  const fondoDestino
+  const posicionNuevaPersonajeX
+  const posicionNuevaPersonajeY
+  const nuevaUbicacion
+  const imagen 
   const esSolido = false
 
   method esSolido() = esSolido
 
-  method image() = "pixel_character.png"
-}
+  method image() = imagen
 
-object hablarConPrimerHuesped {
-  // cada vez q se aprete la 'h' cambia el dialogo
-  var turnoDeHablar = 0
-  method hablar() {
-
-    if(turnoDeHablar == 0){
-      game.say(huesped, "Estas buscando algo?")
-    } else if (turnoDeHablar == 1){
-      game.say(personaje, "Sí, investigo una desaparicion")
-    } else {
-      game.say(huesped, "Quizas encuentres algo en el deposito del hotel")
-      textoPista.cambiarTexto("Objetivo: Ve al deposito", colores.blanco())
-    }
-
-    turnoDeHablar += 1
-    
+  method recibirColisionDe(personaje) {
+    mapa.configurarUbicacion(fondoDestino, objetosAAgregar, objetosAEliminar)
+    personaje.cambiarUbicacion(nuevaUbicacion)
+    personaje.position(game.at(posicionNuevaPersonajeX, posicionNuevaPersonajeY))
   }
-
 }
+
+// Es la puerta vista desde el interior de la habitacion
+const alfombraHaciaPasillo = new PuntoDeAcceso (
+  position = game.at(7, 0),
+  objetosAAgregar = [escalerasDeBajadaHaciaDeposito, 
+                     alfombraHaciaHabitacionPersonaje, 
+                     huesped, 
+                     escalerasDeSubidaHaciaPasillo2],
+  objetosAEliminar = [alfombraHaciaPasillo],
+  fondoDestino = fondoPasillo,
+  posicionNuevaPersonajeX = 7,
+  posicionNuevaPersonajeY = 2,
+  nuevaUbicacion = pasillo1,
+  imagen = "Alfombra.png")
+
+const alfombraHaciaHabitacionPersonaje = new PuntoDeAcceso (
+  position = game.at(7, 3),
+  objetosAAgregar = [alfombraHaciaPasillo],
+  objetosAEliminar = [alfombraHaciaHabitacionPersonaje, 
+                      huesped, 
+                      escalerasDeBajadaHaciaDeposito,
+                      escalerasDeSubidaHaciaPasillo2 ],
+  fondoDestino = fondoHabitacionInicio,
+  posicionNuevaPersonajeX = 7,
+  posicionNuevaPersonajeY = 1,
+  nuevaUbicacion = habitacionPersonaje,
+  imagen = "Alfombra.png"
+)
+
+
+// Escalera para bajar al deposito
+const escalerasDeBajadaHaciaDeposito = new PuntoDeAcceso (
+  position = game.at(1,2),
+  objetosAAgregar = [escalerasDeSubidaHaciaPasillo1, 
+                     carta, 
+                     caja],
+  objetosAEliminar = [escalerasDeBajadaHaciaDeposito, 
+                      alfombraHaciaHabitacionPersonaje, 
+                      huesped,
+                      escalerasDeSubidaHaciaPasillo2],
+  fondoDestino = fondoHabitacionInicio,
+  posicionNuevaPersonajeX = 5,
+  posicionNuevaPersonajeY = 5,
+  nuevaUbicacion = deposito,
+  imagen = "EscalerasBajada.png")
+
+
+const escalerasDeSubidaHaciaPasillo1 = new PuntoDeAcceso (
+  position = game.at(4,5), 
+  objetosAAgregar = [escalerasDeBajadaHaciaDeposito, 
+                     alfombraHaciaHabitacionPersonaje, 
+                     huesped,
+                     escalerasDeSubidaHaciaPasillo2],
+  objetosAEliminar = [escalerasDeSubidaHaciaPasillo1, 
+                      caja, 
+                      carta],
+  fondoDestino = fondoPasillo,
+  posicionNuevaPersonajeX = 2,
+  posicionNuevaPersonajeY = 2,
+  nuevaUbicacion = pasillo1,
+  imagen = "EscalerasSubida.png")
+
+const escalerasDeSubidaHaciaPasillo2 = new PuntoDeAcceso (
+  position = game.at(13, 2),
+  objetosAAgregar = [escalerasDeBajadaHaciaPasillo1],
+  objetosAEliminar = [escalerasDeSubidaHaciaPasillo2,
+                      escalerasDeBajadaHaciaDeposito,
+                      huesped,
+                      alfombraHaciaHabitacionPersonaje],
+  fondoDestino = fondoPasillo,
+  posicionNuevaPersonajeX = 11,
+  posicionNuevaPersonajeY = 2,
+  nuevaUbicacion = pasillo2,
+  imagen = "EscalerasSubida_Invertida.png")
+
+const escalerasDeBajadaHaciaPasillo1 = new PuntoDeAcceso (
+  position = game.at(13, 2),
+  objetosAAgregar = [escalerasDeSubidaHaciaPasillo2,
+                     escalerasDeBajadaHaciaDeposito, 
+                     alfombraHaciaHabitacionPersonaje, 
+                     huesped],
+  objetosAEliminar = [escalerasDeBajadaHaciaPasillo1],
+  fondoDestino = fondoPasillo,
+  posicionNuevaPersonajeX = 12,
+  posicionNuevaPersonajeY = 2,
+  nuevaUbicacion = pasillo1,
+  imagen = "EscalerasBajada_Invertida.png"
+)
