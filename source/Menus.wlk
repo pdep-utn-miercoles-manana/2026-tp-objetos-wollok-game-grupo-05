@@ -4,15 +4,35 @@ import Mapa.*
 
 object menuInicio {
   const fondo = fondoInicio
+  var frame = 0
+  const frameFinal = 15
 
   method configurarMenu() {
     game.addVisual(fondo)
-    keyboard.enter().onPressDo({self.avanzarASeleccionDePersonaje()})
+    keyboard.enter().onPressDo({self.transicionASeleccionDePersonaje()})
   }
 
-  method avanzarASeleccionDePersonaje() {
-    game.removeVisual(fondo)
-    menuSeleccionDePersonaje.configurarMenu()
+  // Realiza la transicion al menu de Seleccion de Personaje
+  method transicionASeleccionDePersonaje(){
+    // se envia el mensaje avanzarUnFrame y si llega
+    // al frame final se resetea el frame y avanza
+    game.onTick(100, "AnimacionMenuPrincipal", {
+      self.avanzarUnFrame()
+
+      if(frame == frameFinal){
+        game.removeTickEvent("AnimacionMenuPrincipal")
+        frame = 0
+
+        game.removeVisual(fondo)
+        menuSeleccionDePersonaje.configurarMenu()
+      }
+    })
+  }
+
+  // Avanza un frame cambiando la imagen del fondo
+  method avanzarUnFrame(){
+    frame += 1
+    fondo.alternarImagen("AnimacionMenuPrincipal/frame" + frame + ".png")
   }
 }
 
