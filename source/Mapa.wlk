@@ -4,12 +4,12 @@ import Personajes.*
 import Fondos.*
 
 object mapa {
-  var fondoActual = fondoHabitacion468
+  var fondoActual = fondoHabitacion148
 
   method primeraUbicacion() { 
     // Usamos addVisual en vez de addVisualCharacter para tener control total del movimiento
     game.addVisual(personaje)
-    self.configurarUbicacion(fondoActual, [puerta468HaciaPasilloPiso1, puerta468HaciaPasilloJefe], [])
+    self.configurarUbicacion(fondoActual, [puerta148HaciaPasilloPiso1, puerta148HaciaPasilloJefe], [])
     personaje.cambiarUbicacion(habitacion)
   }
 
@@ -81,11 +81,12 @@ class PuntoDeAcceso {
   }
 }
 
-const puerta468HaciaPasilloJefe = new PuntoDeAcceso (
+// Puerta entre la habitacion 148 y el pasillo del Jefe
+const puerta148HaciaPasilloJefe = new PuntoDeAcceso (
   position = game.at(7, 5),
-  objetosAAgregar = [puertaPasilloJefeHacia468],
-  objetosAEliminar = [puerta468HaciaPasilloPiso1, 
-                      puerta468HaciaPasilloJefe],
+  objetosAAgregar = [puertaPasilloJefeHacia148],
+  objetosAEliminar = [puerta148HaciaPasilloPiso1, 
+                      puerta148HaciaPasilloJefe],
   fondoDestino = fondoPasilloJefe,
   posicionNuevaPersonajeX = 7,
   posicionNuevaPersonajeY = 1,
@@ -93,48 +94,49 @@ const puerta468HaciaPasilloJefe = new PuntoDeAcceso (
   imagen = "Puerta_horizontal.png"
   )
 
-const puertaPasilloJefeHacia468 = new PuntoDeAcceso (
+const puertaPasilloJefeHacia148 = new PuntoDeAcceso (
   position = game.at(7,0),
-  objetosAAgregar = [puerta468HaciaPasilloPiso1, 
-                     puerta468HaciaPasilloJefe],
-  objetosAEliminar = [puertaPasilloJefeHacia468],
-  fondoDestino = fondoHabitacion468,
+  objetosAAgregar = [puerta148HaciaPasilloPiso1, 
+                     puerta148HaciaPasilloJefe],
+  objetosAEliminar = [puertaPasilloJefeHacia148],
+  fondoDestino = fondoHabitacion148,
   posicionNuevaPersonajeX = 7,
   posicionNuevaPersonajeY = 4,
   nuevaUbicacion = habitacion,
   imagen = "Puerta_horizontal.png"
 )
 
-// Es la puerta vista desde el interior de la habitacion
-const puerta468HaciaPasilloPiso1 = new PuntoDeAcceso (
+// Puerta entre la habitacion 148 y el pasillo del piso 1
+const puerta148HaciaPasilloPiso1 = new PuntoDeAcceso (
   position = game.at(7, 0),
   objetosAAgregar = [escalerasDeBajadaHaciaPasilloSubsuelo, 
-                     puertaPasilloPiso1HaciaHabitacion468, 
+                     puertaPasilloPiso1HaciaHabitacion148, 
                      huesped, 
                      escalerasDeSubidaHaciaPasilloPiso2],
-  objetosAEliminar = [puerta468HaciaPasilloPiso1,
-                      puerta468HaciaPasilloJefe],
+  objetosAEliminar = [puerta148HaciaPasilloPiso1,
+                      puerta148HaciaPasilloJefe],
   fondoDestino = fondoPasilloPiso1,
   posicionNuevaPersonajeX = 7,
   posicionNuevaPersonajeY = 2,
   nuevaUbicacion = pasillo,
   imagen = "Puerta_horizontal.png")
 
-const puertaPasilloPiso1HaciaHabitacion468 = new PuntoDeAcceso (
+const puertaPasilloPiso1HaciaHabitacion148 = new PuntoDeAcceso (
   position = game.at(7, 3),
-  objetosAAgregar = [puerta468HaciaPasilloPiso1,
-                     puerta468HaciaPasilloJefe],
-  objetosAEliminar = [puertaPasilloPiso1HaciaHabitacion468, 
+  objetosAAgregar = [puerta148HaciaPasilloPiso1,
+                     puerta148HaciaPasilloJefe],
+  objetosAEliminar = [puertaPasilloPiso1HaciaHabitacion148, 
                       huesped, 
                       escalerasDeBajadaHaciaPasilloSubsuelo,
                       escalerasDeSubidaHaciaPasilloPiso2],
-  fondoDestino = fondoHabitacion468,
+  fondoDestino = fondoHabitacion148,
   posicionNuevaPersonajeX = 7,
   posicionNuevaPersonajeY = 1,
   nuevaUbicacion = habitacion,
   imagen = "Puerta_horizontal.png"
 )
 
+// Puerta entre el deposito 1 y el pasillo del subsuelo
 const puertaDeposito1HaciaPasilloSubsuelo = new PuntoDeAcceso (
   position = game.at(7, 0),
   objetosAAgregar = [escalerasDeSubidaHaciaPasilloPiso1, 
@@ -166,6 +168,7 @@ const puertaHaciaDeposito1 = new PuntoDeAcceso (
   imagen = "Puerta_horizontal.png"
 )
 
+// Puerta entre el deposito 2 y el pasillo del subsuelo
 const puertaDeposito2HaciaPasilloSubsuelo = new PuntoDeAcceso (
   position = game.at(7, 0),
   objetosAAgregar = [escalerasDeSubidaHaciaPasilloPiso1, 
@@ -194,11 +197,36 @@ const puertaHaciaDeposito2 = new PuntoDeAcceso (
   imagen = "Puerta_horizontal.png"
 )
 
+// Puerte entre la habitacion 202 y el pasillo del piso 2
+const puerta202HaciaPasilloPiso2 = new PuntoDeAcceso (
+  position = game.at(7, 0),
+  objetosAAgregar = [puertaPasilloPiso2HaciaHabitacion202,
+                     escalerasDeBajadaHaciaPasilloPiso1],
+  objetosAEliminar = [puerta202HaciaPasilloPiso2],
+  fondoDestino = fondoPasilloPiso2,
+  posicionNuevaPersonajeX = 7,
+  posicionNuevaPersonajeY = 2,
+  nuevaUbicacion = pasillo,
+  imagen = "Puerta_horizontal.png"
+)
+
+const puertaPasilloPiso2HaciaHabitacion202 = new PuntoDeAcceso (
+  position = game.at(7, 3),
+  objetosAAgregar = [puerta202HaciaPasilloPiso2],
+  objetosAEliminar = [puertaPasilloPiso2HaciaHabitacion202,
+                      escalerasDeBajadaHaciaPasilloPiso1],
+  fondoDestino = fondoHabitacion,
+  posicionNuevaPersonajeX = 7,
+  posicionNuevaPersonajeY = 1,
+  nuevaUbicacion = habitacion,
+  imagen = "Puerta_horizontal.png"
+)
+
 // Escaleras de subida y bajada entre subsuelo y Piso1
 const escalerasDeSubidaHaciaPasilloPiso1 = new PuntoDeAcceso (
   position = game.at(1,2), 
   objetosAAgregar = [escalerasDeBajadaHaciaPasilloSubsuelo, 
-                     puertaPasilloPiso1HaciaHabitacion468, 
+                     puertaPasilloPiso1HaciaHabitacion148, 
                      huesped,
                      escalerasDeSubidaHaciaPasilloPiso2],
   objetosAEliminar = [escalerasDeSubidaHaciaPasilloPiso1,
@@ -218,7 +246,7 @@ const escalerasDeBajadaHaciaPasilloSubsuelo = new PuntoDeAcceso (
   objetosAEliminar = [escalerasDeSubidaHaciaPasilloPiso2,
                       escalerasDeBajadaHaciaPasilloSubsuelo,
                       huesped,
-                      puertaPasilloPiso1HaciaHabitacion468],
+                      puertaPasilloPiso1HaciaHabitacion148],
   fondoDestino = fondoPasilloSubsuelo,
   posicionNuevaPersonajeX = 2,
   posicionNuevaPersonajeY = 2,
@@ -228,11 +256,12 @@ const escalerasDeBajadaHaciaPasilloSubsuelo = new PuntoDeAcceso (
 // Escaleras de subida y bajada entre Piso1 y Piso2
 const escalerasDeSubidaHaciaPasilloPiso2 = new PuntoDeAcceso (
   position = game.at(13, 2),
-  objetosAAgregar = [escalerasDeBajadaHaciaPasilloPiso1],
+  objetosAAgregar = [escalerasDeBajadaHaciaPasilloPiso1,
+                     puertaPasilloPiso2HaciaHabitacion202],
   objetosAEliminar = [escalerasDeSubidaHaciaPasilloPiso2,
                       escalerasDeBajadaHaciaPasilloSubsuelo,
                       huesped,
-                      puertaPasilloPiso1HaciaHabitacion468],
+                      puertaPasilloPiso1HaciaHabitacion148],
   fondoDestino = fondoPasilloPiso2,
   posicionNuevaPersonajeX = 12,
   posicionNuevaPersonajeY = 2,
@@ -243,9 +272,10 @@ const escalerasDeBajadaHaciaPasilloPiso1 = new PuntoDeAcceso (
   position = game.at(13, 2),
   objetosAAgregar = [escalerasDeSubidaHaciaPasilloPiso2,
                      escalerasDeBajadaHaciaPasilloSubsuelo, 
-                     puertaPasilloPiso1HaciaHabitacion468, 
+                     puertaPasilloPiso1HaciaHabitacion148, 
                      huesped],
-  objetosAEliminar = [escalerasDeBajadaHaciaPasilloPiso1],
+  objetosAEliminar = [escalerasDeBajadaHaciaPasilloPiso1,
+                      puertaPasilloPiso2HaciaHabitacion202],
   fondoDestino = fondoPasilloPiso1,
   posicionNuevaPersonajeX = 12,
   posicionNuevaPersonajeY = 2,
