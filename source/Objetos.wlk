@@ -105,7 +105,7 @@ object cajaFuerte{
 
   method esSolido() = esSolido
 
-  method image() = "safety_box.png"
+  method image() = "CajaFuerte.png"
 
   method recibirColisionDe(personaje) {
     game.say(personaje, "Se necesita un codigo")
