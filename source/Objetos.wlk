@@ -5,6 +5,9 @@ import wollok.game.*
 object colores {
   const property negro = "000000"
   const property blanco = "FFFFFF"
+  const property verde = "008000"
+  const property rojo = "FF0000"
+
 }
 
 object textoPista{
@@ -138,5 +141,15 @@ object cajaFuerte{
     }
     
   }
+
+}
+
+object textoDerrota {
+  var texto = "HAZ SIDO DERROTADO. PRESIONA ENTER PARA CONTINUAR"
+
+  method position() = game.center()
+  method text() = texto
+  method textColor() = colores.rojo()
+
 
 }
