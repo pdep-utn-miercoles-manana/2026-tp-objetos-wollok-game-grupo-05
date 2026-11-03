@@ -110,6 +110,10 @@ object personaje {
     } 
   }
 
+  method mirarA(nuevaOrientacion) {
+    orientacion = nuevaOrientacion
+  }
+
   method cambiarUbicacion(nuevaUbicacion) {
     ubicacionActual = nuevaUbicacion
   }
