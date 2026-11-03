@@ -1,4 +1,5 @@
 import Personajes.*
+import PersonajePrincipal.*
 import Fondos.*
 import Mapa.*
 

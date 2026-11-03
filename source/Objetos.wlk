@@ -1,6 +1,6 @@
 import Personajes.*
+import PersonajePrincipal.*
 import wollok.game.*
-  // Cuando el personaje colisiona con la caja
 
 object colores {
   const property negro = "000000"
@@ -27,10 +27,6 @@ object textoPista{
 
  object invisible {
   method position() = game.origin()
-
-// method recibirColisionDe(personaje) {
-//    game.say(personaje, "Cuidado!")   
-// } 
 }
 
 object caja{
@@ -50,7 +46,7 @@ object caja{
       cargadaPorPersonaje = true
       esSolido = false
       position = personaje.position().up(1)
-    } else if (cargadaPorPersonaje and ubicacionActual.esPosicionValida(posicionAdelante)) {{}
+    } else if (cargadaPorPersonaje and ubicacionActual.esPosicionValida(posicionAdelante)) {
       position = personaje.posicionAdelante()
       cargadaPorPersonaje = false
       esSolido = true
@@ -122,6 +118,7 @@ object cajaFuerte{
     }
     
   }
+
   method confirmarCodigo(){
     if(codigoIngresado == codigoCorrecto){
       abierta = true
@@ -133,6 +130,7 @@ object cajaFuerte{
     ingresandoCodigo = false
     }
   } 
+  
   method comenzarIngreso() {
     if(self.position().distance(personaje.position()) <= 1 && !abierta){
       ingresandoCodigo = true
@@ -145,11 +143,10 @@ object cajaFuerte{
 }
 
 object textoDerrota {
-  var texto = "HAZ SIDO DERROTADO. PRESIONA ENTER PARA CONTINUAR"
+  const texto = "HAS MUERTO. PRESIONA ENTER PARA CONTINUAR"
 
   method position() = game.center()
   method text() = texto
   method textColor() = colores.rojo()
-
 
 }
