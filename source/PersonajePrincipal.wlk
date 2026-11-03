@@ -2,112 +2,33 @@ import Objetos.*
 import Mapa.*
 import Personajes.*
 import EstadoDelJuego.*
+import TextosEnPantalla.*
+import Colores.*
 
 object personaje {
   var property personajeElegido = null
-  var property position = game.center()
   var property orientacion = "down"
-  var cargandoCaja = false
+  var property position = game.center()
+  const objetos = []
   var enMovimiento = false
-  var tieneLlave202 = false
   var derrotado = false
   var ubicacionActual = null
   var numeroDeDialogo = 0
   var vidas = 3
 
-  method opcionDePersonaje(opcion) {
-    personajeElegido = opcion
-  }
-
   method image() = "Personaje" + personajeElegido + "_" + orientacion + ".png"
 
-  method configurarTeclas() {
-    keyboard.up().onPressDo({ if (!derrotado) self.moverseA(self.position().up(1), "up")})
-    keyboard.down().onPressDo({ if (!derrotado) self.moverseA(self.position().down(1), "down")})
-    keyboard.left().onPressDo({ if (!derrotado) self.moverseA(self.position().left(1), "left")})
-    keyboard.right().onPressDo({ if (!derrotado) self.moverseA(self.position().right(1), "right")})
+  method derrotado() = derrotado
 
-    // Al presionar 'e', cargamos o descargamos la caja
-    // hay que estar cerca y la posicion adelante tiene que ser valida
-    keyboard.e().onPressDo({ 
-      caja.cargarOAlternar(self.posicionAdelante(), ubicacionActual) 
-      cargandoCaja = cargandoCaja.negate()
-    })
-
-    // Al presionar 'h', para hablar con los Npcs
-    keyboard.h().onPressDo({ 
-      secretaria.hablarSiEstaCerca(self)
-      huespedRaro.hablarSiEstaCerca(self)
-    })
-
-    // Al presionar 'c', ingresamos el codigo de la caja fuerte
-    keyboard.c().onPressDo({ 
-      cajaFuerte.comenzarIngreso()
-    })
-
-    // detectar los numeros de la caja fuerte (solo toma combinaciones)
-    keyboard.num3().onPressDo({
-    cajaFuerte.ingresarCodigo("3")
-    })
-
-    keyboard.num9().onPressDo({
-    cajaFuerte.ingresarCodigo("9")
-    })
-
-    keyboard.num5().onPressDo({
-        cajaFuerte.ingresarCodigo("5")
-    })
-
-    keyboard.num1().onPressDo({
-        cajaFuerte.ingresarCodigo("1")
-    })
-
-    // al precionar 'x' confirma el codigo
-    keyboard.x().onPressDo({
-    cajaFuerte.confirmarCodigo()
-    })
-
-    // Al presionar 'a', leemos el expediente 
-    keyboard.a().onPressDo({ 
-      self.leerExpediente()
-    })
-
-    // Al presionar 'enter' reiniciamos la partida
-    keyboard.enter().onPressDo({ 
-      self.continuarDespuesDeMorir()
-    })
-
-    game.onCollideDo(self, { elemento =>
-    elemento.recibirColisionDe(self)
-    })
-
-    // Al presionar 'l', leemos la carta
-    keyboard.l().onPressDo({ 
-      game.addVisual(textoCarta)
-      game.schedule(3000, { game.removeVisual(textoCarta) })
-      textoPista.cambiarTexto("Objetivo: Busca la caja fuerte", colores.blanco())
-    })
+  method reiniciarEstado() {
+    vidas = 3
+    derrotado = false
+    orientacion = "down"
+    estadoDelJuego.continuarDespuesDeMorir()
   }
 
-  method moverseA(nuevaPosicion, nuevaOrientacion) {
-    if (enMovimiento.negate()){
-      orientacion = nuevaOrientacion
-
-      if(ubicacionActual.esPosicionValida(nuevaPosicion)){
-        enMovimiento = true
-        
-        game.schedule(200, {
-          position = nuevaPosicion
-
-          // Si la caja está siendo cargada por el personaje, se mueve con el
-          if (caja.cargadaPorPersonaje()) {
-            caja.position(nuevaPosicion.up(1))
-          }
-
-          enMovimiento = false
-        })
-      }
-    } 
+  method opcionDePersonaje(opcion) {
+    personajeElegido = opcion
   }
 
   method mirarA(nuevaOrientacion) {
@@ -118,6 +39,42 @@ object personaje {
     ubicacionActual = nuevaUbicacion
   }
 
+  method conseguirObjeto(unObjeto) {
+    objetos.add(unObjeto)
+  }
+
+  method perderObjetos() {
+    objetos.clear()
+  }
+
+  method tieneObjeto(unObjeto) = objetos.contains(unObjeto)
+
+  method desbloquear(unAcceso) {
+    const posicionDeAcceso = unAcceso.position()
+    const llaveDeAcceso = unAcceso.llaveDeAcceso()
+
+    if(position == posicionDeAcceso && self.tieneObjeto(llaveDeAcceso)){
+      llaveDeAcceso.usar()
+    }
+  }
+
+  // Metodo para dar sensacion de movimiento
+  method moverseA(nuevaPosicion, nuevaOrientacion) {
+    if (enMovimiento.negate()){
+      orientacion = nuevaOrientacion
+
+      if(ubicacionActual.esPosicionValida(nuevaPosicion)){
+        enMovimiento = true
+        
+        game.schedule(200, {
+          position = nuevaPosicion
+          enMovimiento = false
+        })
+      }
+    } 
+  }
+
+  // Metodo para saber la posicion que tiene el personaje adelante
   method posicionAdelante() {
     return if (orientacion == "up") { 
       position.up(1) }
@@ -132,25 +89,43 @@ object personaje {
     }
   }
 
-  method leerExpediente() {
+  // Metodo para leer la nota
+  method leerNota() {
     if(numeroDeDialogo == 0){
-      game.say(self, "Aqui hay informacion sobre el huesped desaparecido")
-    } else if (numeroDeDialogo == 1){
-      game.say(self, "Se hospedaba en la habitacion 202")
-    } else {
-      game.say(self, "Quizas alli encuentre mas pistas y logre salir de aquí")
-      textoPista.cambiarTexto("Objetivo: Consigue la llave de la habitacion 202", colores.blanco())
+      game.say(self, "Aqui hay informacion sobre un codigo de 4 digitos")
+    } else (numeroDeDialogo == 1){
+      game.say(self, "Deberia de haber algun lugar en el que pueda utilizarlo")
+      textoPista.cambiarTexto("Objetivo: Busca algun lugar donde puedas usar el codigo", colores.blanco())
     }
 
     numeroDeDialogo += 1
   }
 
-  method tieneLlave202() = tieneLlave202
+  method configurarTeclas() {
+    keyboard.up().onPressDo({ if (!derrotado) self.moverseA(self.position().up(1), "up")})
+    keyboard.down().onPressDo({ if (!derrotado) self.moverseA(self.position().down(1), "down")})
+    keyboard.left().onPressDo({ if (!derrotado) self.moverseA(self.position().left(1), "left")})
+    keyboard.right().onPressDo({ if (!derrotado) self.moverseA(self.position().right(1), "right")})
 
-  method conseguirLlave202() {
-    tieneLlave202 = true
+    // Al presionar 'e', interactuamos con la caja fuerte
+    // para poner el codigo o los npcs
+    keyboard.e().onPressDo({ 
+      cajaFuerte.comenzarIngreso()
+      secretaria.hablarSiEstaCerca(self)
+      huespedRaro.hablarSiEstaCerca(self)
+    })
+
+    // Al presionar 'enter' reiniciamos la partida
+    keyboard.enter().onPressDo({ 
+      if(derrotado) {
+        self.reiniciarEstado()
+      }
+    })
+
+    game.onCollideDo(self, { elemento => elemento.recibirColisionDe(self) })
   }
 
+  // Metodo para perder vidas
   method perderVida() {
     if(!derrotado) {
         vidas -= 1
@@ -164,32 +139,53 @@ object personaje {
     }
   }
 
+  method configurarNumeros() {
+    // Detectar los numeros de la caja fuerte (solo toma combinaciones)
+    keyboard.num1().onPressDo({
+      cajaFuerte.ingresarCodigo("1")
+    })
+
+    keyboard.num1().onPressDo({
+      cajaFuerte.ingresarCodigo("2")
+    })
+
+    keyboard.num3().onPressDo({
+      cajaFuerte.ingresarCodigo("3")
+    })
+
+    keyboard.num3().onPressDo({
+      cajaFuerte.ingresarCodigo("4")
+    })
+
+    keyboard.num3().onPressDo({
+      cajaFuerte.ingresarCodigo("5")
+    })
+    
+    keyboard.num3().onPressDo({
+      cajaFuerte.ingresarCodigo("6")
+    })
+    
+    keyboard.num3().onPressDo({
+      cajaFuerte.ingresarCodigo("7")
+    })
+
+    keyboard.num9().onPressDo({
+      cajaFuerte.ingresarCodigo("8")
+    })
+
+    keyboard.num5().onPressDo({
+      cajaFuerte.ingresarCodigo("9")
+    })
+
+    keyboard.enter().onPressDo({
+      cajaFuerte.confirmarCodigo()
+    })
+  }
+
+  // Metodo para morir
   method morir() {
     derrotado = true
-    tieneLlave202 = false
+    self.perderObjetos()
     game.addVisual(textoDerrota)
-  }
-
-  method continuarDespuesDeMorir() {
-    if (derrotado) {
-      game.removeVisual(textoDerrota)
-      vidas = 3
-      vidasVisual.cambiarVidas(3)
-      mapa.reiniciarJuego()
-      estadoDelJuego.reiniciarDialogosDePersonajes()
-      derrotado = false
-    }
-  }
-}
-
-object vidasVisual {
-  var cantidadDeVidaActual = "3DeVida.png"
-
-  method position() = game.at(0,0)
-
-  method image() = cantidadDeVidaActual
-
-  method cambiarVidas(cantidadDeVidaNueva) {
-        cantidadDeVidaActual = cantidadDeVidaNueva.toString() + "DeVida.png"
   }
 }

@@ -1,62 +1,17 @@
 import Personajes.*
 import PersonajePrincipal.*
-import wollok.game.*
+import Mapa.*
+import Colores.*
 
-object colores {
-  const property negro = "000000"
-  const property blanco = "FFFFFF"
-  const property verde = "008000"
-  const property rojo = "FF0000"
+object llave202 {
 
-}
-
-object textoPista{
-  var texto = "Objetivo: Habla con algun huesped"
-  var colorActual = colores.blanco()
-
-  method position() = game.at(2, 6)
-  method text() = texto
-  method textColor() = colorActual
-
-  method cambiarTexto(nuevoTexto, nuevoColor) {
-    texto = nuevoTexto
-    colorActual = nuevoColor
-    
+  method usar() {
+    puertaPasilloPiso2HaciaHabitacion202.desbloquearAcceso()
   }
 }
 
- object invisible {
-  method position() = game.origin()
-}
-
-object caja{
-  var property position = game.center()
-  var property cargadaPorPersonaje = false
-  var esSolido = true
-
-  method esSolido() = esSolido
-
-  method image() = "Caja.png"
- 
-  method cargarOAlternar(posicionAdelante, ubicacionActual) {
-    // Si el personaje no esta cargando la caja y esta al lado,
-    // alternamos el estado de carga
-    if (cargadaPorPersonaje.negate() and 
-      personaje.position().distance(position) <= 1 and posicionAdelante == position) {
-      cargadaPorPersonaje = true
-      esSolido = false
-      position = personaje.position().up(1)
-    } else if (cargadaPorPersonaje and ubicacionActual.esPosicionValida(posicionAdelante)) {
-      position = personaje.posicionAdelante()
-      cargadaPorPersonaje = false
-      esSolido = true
-    }
-  }
-
-}
-
-object carta{
-  var property position = game.center()
+object nota {
+  var property position = game.at(7, 4)
   const esSolido = false
 
   method esSolido() = esSolido
@@ -64,33 +19,8 @@ object carta{
   method image() = "written_paper.png"
 
   method recibirColisionDe(personaje) {
-    game.say(personaje, "Aqui hay una carta")
-
-  game.schedule(2000, {
-        game.addVisual(invisible)
-    })
-
+    personaje.conseguirObjeto(self)
   }
-
-}
-
-object textoCarta {
-  var texto = "REGISTO DE HUESPEDES
-    Y EMPLEADOS GUARDADOS EN
-    LA CAJA FUERTE DEL 
-    DEPOSITO DEL HOTEL
-    
-    CODIGO 3951"
-
-  method position() = game.center()
-  method text() = texto
-  method textColor() = colores.blanco()
-
-  method cambiarTexto(nuevoTexto, nuevoColor) {
-    texto = nuevoTexto
-    
-  }
-
 }
 
 object cajaFuerte{
@@ -100,7 +30,7 @@ object cajaFuerte{
   var ingresandoCodigo = false
 
   var property position = game.center()
-  const esSolido = false
+  const esSolido = true
 
   method esSolido() = esSolido
 
@@ -123,7 +53,7 @@ object cajaFuerte{
     if(codigoIngresado == codigoCorrecto){
       abierta = true
       ingresandoCodigo = false
-      personaje.leerExpediente()
+      // falta metodo para obtener los elementos 
     } else {
     game.say(personaje, "Este codigo no funciona")
     codigoIngresado = ""
@@ -139,14 +69,5 @@ object cajaFuerte{
     }
     
   }
-
-}
-
-object textoDerrota {
-  const texto = "HAS MUERTO. PRESIONA ENTER PARA CONTINUAR"
-
-  method position() = game.center()
-  method text() = texto
-  method textColor() = colores.rojo()
 
 }

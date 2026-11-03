@@ -1,6 +1,8 @@
 import Objetos.*
 import Mapa.*
 import PersonajePrincipal.*
+import TextosEnPantalla.*
+import Colores.*
 
 class Npc {
   var property position
@@ -56,7 +58,7 @@ object secretaria inherits Npc(position = game.at(11, 3), imagen = "Secretaria")
       game.say(personaje, "Sí, investigo una desaparicion")
     } else {
       game.say(self, "Quizas encuentres algo en el deposito del hotel")
-      textoPista.cambiarTexto("Objetivo: Ve al deposito", colores.blanco())
+      textoPista.cambiarTexto("Objetivo: Ve al deposito")
     }
 
     self.siguienteDialogo()
@@ -76,83 +78,17 @@ object huespedRaro inherits Npc(position = game.at(1,3), imagen = "HuespedRaro")
       game.say(personaje, "La necesito para resolver un caso")
     } else {
       game.say(self, "Toma, pero recuerda que te lo advertí")
-      personaje.conseguirLlave202()
+      if(personaje.tieneObjeto(llave202).negate())
+      personaje.conseguirObjeto(llave202)
       
-      game.addVisual(obtenerLlave)
+      game.addVisual(textoConseguirLlave)
       game.schedule(3000, { 
-        game.removeVisual(obtenerLlave) 
+        game.removeVisual(textoConseguirLlave) 
       })
 
       textoPista.cambiarTexto("Objetivo: Encuentra alguna pista en la habitacion 202", colores.blanco())
     }
 
     self.siguienteDialogo() 
-  }
-}
-
-object obtenerLlave {
-  method position() = game.at(2, 5)
-  method text() = "Obtubiste: Llave de la Habitacion 202"
-  method textColor() = colores.verde()
-}
-
-object enemigo {
-  var property position = game.at(7,5)
-  var orientacion = "down"
-  var puedeAtacar = true
-  const esSolido = false
-
-  method esSolido() = esSolido
-  method image() = "Enemigo_" + orientacion + ".png"
-
-  method detectar() {
-    const distancia = self.position().distance(personaje.position())
-
-    if(distancia > 1 and distancia < 4){
-      self.perseguir()
-    }
-  }
-
-  method perseguir() {
-    if (personaje.position().x() > self.position().x()) {
-      self.position(self.position().right(1))
-      orientacion = "right"
-    } else if (personaje.position().x() < self.position().x()) {
-      self.position(self.position().left(1))
-      orientacion = "left"
-    } else if (personaje.position().y() > self.position().y()) {
-      self.position(self.position().up(1))
-      orientacion = "up"
-    } else if (personaje.position().y() < self.position().y()) {
-      self.position(self.position().down(1))
-      orientacion = "down"
-    }
-  }
-
-  method atacar() {
-    if (self.position().distance(personaje.position()) == 1 and puedeAtacar) {
-      personaje.perderVida()
-      self.iniciarCooldownAtaque() 
-    }
-  }
-
-  method iniciarCooldownAtaque() {
-    puedeAtacar = false
-    game.schedule(2000, { 
-      puedeAtacar = true 
-    })
-  }
-
-  method iniciarMovimiento() {
-    game.onTick(500, "MovimientoEnemigo", { 
-      self.detectar()
-      self.atacar() 
-    })
-  }
-
-  method detenerMovimiento() {
-    if (game.hasVisual(self)) {
-      game.removeTickEvent("MovimientoEnemigo")
-    }
   }
 }

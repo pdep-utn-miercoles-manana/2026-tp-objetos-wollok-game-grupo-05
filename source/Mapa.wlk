@@ -1,7 +1,10 @@
 import wollok.game.*
 import Objetos.*
 import Personajes.*
+import EnemigosYJefeFinal.*
 import PersonajePrincipal.*
+import EstadoDelJuego.*
+import TextosEnPantalla.*
 import Fondos.*
 
 object mapa {
@@ -41,12 +44,12 @@ object mapa {
     game.addVisual(vidasVisual)
   }
 
-  method reiniciarJuego() {
+  method reiniciarJuegoDesde202() {
     enemigo.detenerMovimiento()
     self.configurarUbicacion(
       fondoHabitacion148, 
       [puerta148HaciaPasilloJefe, puerta148HaciaPasilloPiso1], 
-      [puerta202HaciaPasilloPiso2, enemigo, carta]
+      [puerta202HaciaPasilloPiso2, enemigo, nota]
       )
 
     personaje.position(game.center())
@@ -84,17 +87,26 @@ class PuntoDeAcceso {
   const posicionNuevaPersonajeX
   const posicionNuevaPersonajeY
   const nuevaUbicacion
-  const imagen 
+  var accesoDisponible = true
+  const imagen
   const esSolido = false
 
   method esSolido() = esSolido
 
   method image() = imagen
 
-  method puedePasar(personaje) = true
+  method accesoDisponible() = accesoDisponible
 
-  method recibirColisionDe(personaje) {
-    if(self.puedePasar(personaje)){
+  method desbloquearAcceso() {
+    accesoDisponible = true
+  }
+
+  method bloquearAcceso() {
+    accesoDisponible = false
+  }
+
+  method recibirColisionDe(unPersonaje) {
+    if(accesoDisponible){
 
       if (objetosAEliminar.contains(enemigo)) {
         enemigo.detenerMovimiento()
@@ -211,10 +223,6 @@ const puertaHaciaDeposito2 = new PuntoDeAcceso (
 )
 
 // Puerta entre la habitacion 202 y el pasillo del piso 2
-class PuertaConLlave inherits PuntoDeAcceso {
-  override method puedePasar(personaje) = personaje.tieneLlave202()
-}
-
 const puerta202HaciaPasilloPiso2 = new PuntoDeAcceso (
   position = game.at(7, 0),
   objetosAAgregar = [puertaPasilloPiso2HaciaHabitacion202,
@@ -222,7 +230,7 @@ const puerta202HaciaPasilloPiso2 = new PuntoDeAcceso (
                      huespedRaro],
   objetosAEliminar = [puerta202HaciaPasilloPiso2,
                       enemigo,
-                      carta],
+                      nota],
   fondoDestino = fondoPasilloPiso2,
   posicionNuevaPersonajeX = 7,
   posicionNuevaPersonajeY = 2,
@@ -230,10 +238,25 @@ const puerta202HaciaPasilloPiso2 = new PuntoDeAcceso (
   imagen = "Puerta_horizontal.png"
 )
 
-const puertaPasilloPiso2HaciaHabitacion202 = new PuertaConLlave (
+class PuntoDeAccesoConLlave inherits PuntoDeAcceso {
+  const llaveDeAcceso
+
+  method llaveDeAcceso() = llaveDeAcceso
+
+  override method recibirColisionDe(unPersonaje){
+    if (accesoDisponible.negate() and personaje.tieneObjeto(llaveDeAcceso)) {
+      self.desbloquearAcceso()
+    }
+    
+    super(personaje)
+  }
+  
+}
+
+const puertaPasilloPiso2HaciaHabitacion202 = new PuntoDeAccesoConLlave (
   position = game.at(7, 3),
   objetosAAgregar = [puerta202HaciaPasilloPiso2, 
-                     carta,
+                     nota,
                      enemigo],
   objetosAEliminar = [puertaPasilloPiso2HaciaHabitacion202,
                       escalerasDeBajadaHaciaPasilloPiso1,
@@ -242,6 +265,8 @@ const puertaPasilloPiso2HaciaHabitacion202 = new PuertaConLlave (
   posicionNuevaPersonajeX = 7,
   posicionNuevaPersonajeY = 1,
   nuevaUbicacion = habitacion,
+  accesoDisponible = false,
+  llaveDeAcceso = llave202,
   imagen = "Puerta_horizontal.png"
 )
 
