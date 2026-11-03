@@ -115,12 +115,12 @@ object obtenerLlave {
 
 object enemigo {
   var property position = game.at(7,5)
+  var orientacion = "down"
   var puedeAtacar = true
   const esSolido = false
-  
 
   method esSolido() = esSolido
-  method image() = "enemigo.png"
+  method image() = "Enemigo_" + orientacion + ".png"
 
   method detectar() {
     const distancia = self.position().distance(personaje.position())
@@ -133,12 +133,16 @@ object enemigo {
   method perseguir() {
     if (personaje.position().x() > self.position().x()) {
       self.position(self.position().right(1))
+      orientacion = "right"
     } else if (personaje.position().x() < self.position().x()) {
       self.position(self.position().left(1))
+      orientacion = "left"
     } else if (personaje.position().y() > self.position().y()) {
       self.position(self.position().up(1))
+      orientacion = "up"
     } else if (personaje.position().y() < self.position().y()) {
       self.position(self.position().down(1))
+      orientacion = "down"
     }
   }
 

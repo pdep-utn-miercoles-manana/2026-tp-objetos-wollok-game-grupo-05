@@ -1,0 +1,3 @@
+// object estadoDelJuego {
+//     const personajes
+// }
