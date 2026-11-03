@@ -1,54 +1,64 @@
-import Objetos.*
-import Mapa.*
-import Personajes.*
+import Direcciones.*
 import EstadoDelJuego.*
+import Objetos.*
 import TextosEnPantalla.*
-import Colores.*
 
 object personaje {
   var property personajeElegido = null
-  var property orientacion = "down"
   var property position = game.center()
-  const objetos = []
+  var property orientacion = abajo
+  var modoDeMovimiento = caminando
   var enMovimiento = false
   var derrotado = false
   var ubicacionActual = null
-  var numeroDeDialogo = 0
   var vidas = 3
+  const objetos = []
 
-  method image() = "Personaje" + personajeElegido + "_" + orientacion + ".png"
+  method esSolido() = false
 
   method derrotado() = derrotado
 
+  // Elige la imagen segun la orientacion que tenga
+  method image() = "Personaje" + personajeElegido + "_" + orientacion.nombre() + ".png"
+
+  // Al morir reinicia el estado del personaje y
+  // del juego en general delegando a estadoDelJuego
   method reiniciarEstado() {
     vidas = 3
     derrotado = false
-    orientacion = "down"
+    orientacion = abajo
     estadoDelJuego.continuarDespuesDeMorir()
   }
 
+  // Elegir la opcion de personaje con el menu de seleccion
   method opcionDePersonaje(opcion) {
     personajeElegido = opcion
   }
 
+  // Cambiar la orientacion del personaje
   method mirarA(nuevaOrientacion) {
     orientacion = nuevaOrientacion
   }
 
+  // Cambiar la ubicacion del personaje
   method cambiarUbicacion(nuevaUbicacion) {
     ubicacionActual = nuevaUbicacion
   }
 
+  // Conseguir un objeto
   method conseguirObjeto(unObjeto) {
     objetos.add(unObjeto)
   }
 
+  // Perder todos los objetos
   method perderObjetos() {
     objetos.clear()
   }
 
+  // Saber si el personaje tiene un objeto
   method tieneObjeto(unObjeto) = objetos.contains(unObjeto)
 
+  // Desbloquear un acceso si tiene la llave para ello
   method desbloquear(unAcceso) {
     const posicionDeAcceso = unAcceso.position()
     const llaveDeAcceso = unAcceso.llaveDeAcceso()
@@ -58,74 +68,74 @@ object personaje {
     }
   }
 
-  // Metodo para dar sensacion de movimiento
+  // Posicion que tiene el personaje adelante
+  method posicionAdelante() = orientacion.siguiente(position)
+
+  // Hacer Metodo para leer la nota
+
+  // Metodos para que el personaje se pueda mover
+  // con sensacion de movimiento y alternar direcciones
+  // al estar parado
+  method mover(direccion) {
+    if (!derrotado) {
+      modoDeMovimiento.mover(self, direccion)
+    }
+  }
+
+  // Cambia el modo de movimiento alternando entre caminando y solo girando
+  method cambiarModoDeMovimiento(unModo) {
+    modoDeMovimiento = unModo
+  }
+  
+  // Camina en la direccion indicada
+  method caminarHacia(direccion) {
+    self.moverseA(direccion.siguiente(position), direccion)
+  }
+
+  // Realisa el cambio de posicion junto con la nueva orientacion
   method moverseA(nuevaPosicion, nuevaOrientacion) {
     if (enMovimiento.negate()){
       orientacion = nuevaOrientacion
 
       if(ubicacionActual.esPosicionValida(nuevaPosicion)){
         enMovimiento = true
+        const posicionDeSalida = position
         
         game.schedule(200, {
-          position = nuevaPosicion
+          if (position == posicionDeSalida) {
+            position = nuevaPosicion
+          }
           enMovimiento = false
         })
       }
     } 
   }
 
-  // Metodo para saber la posicion que tiene el personaje adelante
-  method posicionAdelante() {
-    return if (orientacion == "up") { 
-      position.up(1) }
-    else if (orientacion == "down") { 
-      position.down(1) }
-    else if (orientacion == "left") { 
-      position.left(1) }
-    else if (orientacion == "right") { 
-      position.right(1) }
-    else {
-      position
+
+  // Interactuar solo si no ha sido derrotado
+  method interactuar() {
+    if (!derrotado) {
+      self.interactuarConLoQueTieneAlAlcance()
     }
   }
 
-  // Metodo para leer la nota
-  method leerNota() {
-    if(numeroDeDialogo == 0){
-      game.say(self, "Aqui hay informacion sobre un codigo de 4 digitos")
-    } else (numeroDeDialogo == 1){
-      game.say(self, "Deberia de haber algun lugar en el que pueda utilizarlo")
-      textoPista.cambiarTexto("Objetivo: Busca algun lugar donde puedas usar el codigo", colores.blanco())
+  // Interactuar con lo que tenga a su alcance
+  method interactuarConLoQueTieneAlAlcance() {
+    const objetosInteractuables = self.objetosAlAlcance()
+    if (!objetosInteractuables.isEmpty()) {
+      objetosInteractuables.first().interactuar(self)
     }
-
-    numeroDeDialogo += 1
   }
 
-  method configurarTeclas() {
-    keyboard.up().onPressDo({ if (!derrotado) self.moverseA(self.position().up(1), "up")})
-    keyboard.down().onPressDo({ if (!derrotado) self.moverseA(self.position().down(1), "down")})
-    keyboard.left().onPressDo({ if (!derrotado) self.moverseA(self.position().left(1), "left")})
-    keyboard.right().onPressDo({ if (!derrotado) self.moverseA(self.position().right(1), "right")})
-
-    // Al presionar 'e', interactuamos con la caja fuerte
-    // para poner el codigo o los npcs
-    keyboard.e().onPressDo({ 
-      cajaFuerte.comenzarIngreso()
-      secretaria.hablarSiEstaCerca(self)
-      huespedRaro.hablarSiEstaCerca(self)
-    })
-
-    // Al presionar 'enter' reiniciamos la partida
-    keyboard.enter().onPressDo({ 
-      if(derrotado) {
-        self.reiniciarEstado()
-      }
-    })
-
-    game.onCollideDo(self, { elemento => elemento.recibirColisionDe(self) })
+  // Devuelve los objetos que están al alcance primero los que están en el 
+  // casillero de adelante y luego los de la posición actual
+  method objetosAlAlcance() {
+    const adelante = game.getObjectsIn(self.posicionAdelante())
+    const aca = game.getObjectsIn(position).filter({ objeto => objeto != self })
+    return adelante + aca
   }
 
-  // Metodo para perder vidas
+  // Perder una vida
   method perderVida() {
     if(!derrotado) {
         vidas -= 1
@@ -139,53 +149,58 @@ object personaje {
     }
   }
 
-  method configurarNumeros() {
-    // Detectar los numeros de la caja fuerte (solo toma combinaciones)
-    keyboard.num1().onPressDo({
-      cajaFuerte.ingresarCodigo("1")
-    })
-
-    keyboard.num1().onPressDo({
-      cajaFuerte.ingresarCodigo("2")
-    })
-
-    keyboard.num3().onPressDo({
-      cajaFuerte.ingresarCodigo("3")
-    })
-
-    keyboard.num3().onPressDo({
-      cajaFuerte.ingresarCodigo("4")
-    })
-
-    keyboard.num3().onPressDo({
-      cajaFuerte.ingresarCodigo("5")
-    })
-    
-    keyboard.num3().onPressDo({
-      cajaFuerte.ingresarCodigo("6")
-    })
-    
-    keyboard.num3().onPressDo({
-      cajaFuerte.ingresarCodigo("7")
-    })
-
-    keyboard.num9().onPressDo({
-      cajaFuerte.ingresarCodigo("8")
-    })
-
-    keyboard.num5().onPressDo({
-      cajaFuerte.ingresarCodigo("9")
-    })
-
-    keyboard.enter().onPressDo({
-      cajaFuerte.confirmarCodigo()
-    })
-  }
-
-  // Metodo para morir
+  // Cambiar el estado del personaje a derrotado perdiendo los objetos que tenia
   method morir() {
     derrotado = true
     self.perderObjetos()
     game.addVisual(textoDerrota)
   }
+
+  // Configura las teclas del personaje
+  method configurarTeclas() {
+   
+    // Configura las flechas para moverse
+    direcciones.todas().forEach({ direccion =>
+      direccion.tecla().onPressDo({ self.mover(direccion) })
+    })
+
+    // Mientras se mantiene Alt, las flechas solo giran al personaje
+    keyboard.alt().onPressDo({ self.cambiarModoDeMovimiento(soloGirando) })
+    keyboard.alt().onReleaseDo({ self.cambiarModoDeMovimiento(caminando) })
+
+    // Al presionar 'e', interactuamos de forma inteligente con lo que tengamos al alcance
+    keyboard.e().onPressDo({ self.interactuar() })
+
+    // Configuración de números para la caja fuerte
+    self.configurarTeclasNumericas()
+
+    // Al presionar 'enter' reiniciamos la partida si está derrotado
+    keyboard.enter().onPressDo({ 
+      if(derrotado) {
+        self.reiniciarEstado()
+      }
+    })
+
+    game.onCollideDo(self, { elemento => elemento.recibirColisionDe(self) })
+  }
+
+  method configurarTeclasNumericas() {
+    (0..9).forEach({ numero =>
+      keyboard.num(numero).onPressDo({ cajaFuerte.ingresarCodigo(numero.toString()) })
+    })
+    keyboard.enter().onPressDo({
+      if (!derrotado) {
+        cajaFuerte.confirmarCodigo()
+      }
+    })
+  }
+}
+
+// Modos de movimiento: las flechas hacen algo distinto segun el modo (polimorfismo)
+object caminando {
+  method mover(unPersonaje, direccion) { unPersonaje.caminarHacia(direccion) }
+}
+
+object soloGirando {
+  method mover(unPersonaje, direccion) { unPersonaje.mirarA(direccion) }
 }

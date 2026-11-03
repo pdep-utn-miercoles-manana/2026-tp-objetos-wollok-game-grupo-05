@@ -1,7 +1,7 @@
-import Personajes.*
-import PersonajePrincipal.*
 import Mapa.*
-import Colores.*
+import PersonajePrincipal.*
+import Progreso.*
+import TextosEnPantalla.*
 
 object llave202 {
 
@@ -23,51 +23,77 @@ object nota {
   }
 }
 
-object cajaFuerte{
+// La caja fuerte cambia de comportamiento segun su estado (cerrada, ingresando el codigo
+// o abierta). En vez de preguntar con if por variables booleanas, le delega al estado actual.
+object cajaFuerte {
   const codigoCorrecto = "3951"
   var codigoIngresado = ""
-  var abierta = false 
-  var ingresandoCodigo = false
+  var estado = cajaCerrada
 
   var property position = game.center()
-  const esSolido = true
 
-  method esSolido() = esSolido
+  method esSolido() = true
 
   method image() = "CajaFuerte.png"
 
-  method recibirColisionDe(personaje) {
-    game.say(personaje, "Se necesita un codigo")
-
+  // Tecla E (solo una vez que la historia llego a este punto)
+  method interactuar(unPersonaje) {
+    if (progreso.alcanzo(abrirLaCajaFuerte)) {
+      estado.interactuar(self)
+    }
   }
 
-  method ingresarCodigo(unCodigo) {
-    if(ingresandoCodigo && !abierta){
-      codigoIngresado += unCodigo
-      game.say(personaje, codigoIngresado)
-    }
-    
+  // Teclas numericas
+  method ingresarCodigo(unDigito) {
+    estado.ingresarDigito(self, unDigito)
   }
 
-  method confirmarCodigo(){
-    if(codigoIngresado == codigoCorrecto){
-      abierta = true
-      ingresandoCodigo = false
-      // falta metodo para obtener los elementos 
-    } else {
-    game.say(personaje, "Este codigo no funciona")
-    codigoIngresado = ""
-    ingresandoCodigo = false
-    }
-  } 
-  
+  // ---- Usados por los estados ----
+
   method comenzarIngreso() {
-    if(self.position().distance(personaje.position()) <= 1 && !abierta){
-      ingresandoCodigo = true
-      codigoIngresado = ""
-      game.say(personaje, "Ahora podes ingresar el codigo")
-    }
-    
+    codigoIngresado = ""
+    estado = cajaIngresandoCodigo
+    game.say(personaje, "Ingresa el codigo y confirma con E")
   }
 
+  method agregarDigito(unDigito) {
+    codigoIngresado += unDigito
+    game.say(personaje, codigoIngresado)
+  }
+
+  method confirmarCodigo() {
+    if (codigoIngresado == codigoCorrecto) {
+      estado = cajaAbierta
+      pantalla.mostrarDurante(textoConseguirOfrendas, 3000)
+    } else {
+      estado = cajaCerrada
+      game.say(personaje, "Este codigo no funciona")
+    }
+  }
+}
+
+// Cerrada: E empieza a ingresar el codigo; los numeros no hacen nada
+object cajaCerrada {
+  method interactuar(unaCaja) { unaCaja.comenzarIngreso() }
+  method ingresarDigito(unaCaja, unDigito) {}
+}
+
+// Ingresando el codigo: los numeros se van agregando y E confirma
+object cajaIngresandoCodigo {
+  method interactuar(unaCaja) { unaCaja.confirmarCodigo() }
+  method ingresarDigito(unaCaja, unDigito) { unaCaja.agregarDigito(unDigito) }
+}
+
+// Abierta: E lee el expediente que estaba guardado adentro
+object cajaAbierta {
+  method interactuar(unaCaja) { ofrendas.recoger() }
+  method ingresarDigito(unaCaja, unDigito) {}
+}
+
+// Las ofrendas guardadas en la caja fuerte. Al ingresar 
+// el codigo  correctamente el personaje las recoge
+object ofrendas {
+  method recoger() {
+    personaje.conseguirObjeto(self)
+  }
 }

@@ -1,14 +1,37 @@
+import Direcciones.*
 import PersonajePrincipal.*
 
 object enemigo {
   var property position = game.at(7,5)
-  var orientacion = "down"
+  var orientacion = abajo
   var puedeAtacar = true
   const esSolido = true
 
   method esSolido() = esSolido
-  method image() = "Enemigo_" + orientacion + ".png"
+  method image() = "Enemigo_" + orientacion.nombre()  + ".png"
 
+  // Al recibir colision del personaje o si intenta 
+  // interactura no hace nada
+  method recibirColisionDe(unPersonaje) {}
+  method interactuar(unPersonaje) {}
+
+    // Ataca al personaje
+  method atacar() {
+    if (self.position().distance(personaje.position()) == 1 and puedeAtacar) {
+      personaje.perderVida()
+      self.iniciarCooldownAtaque() 
+    }
+  }
+
+  // Persigue al personaje
+  method perseguir() {
+    const direccion = direcciones.queAcerca(position, personaje.position())
+    orientacion = direccion
+    position = direccion.siguiente(position)
+  }
+
+  // Al estar en un rango de 4 casillas el enemigo te detecta y te
+  // comienza a perseguir
   method detectar() {
     const distancia = self.position().distance(personaje.position())
 
@@ -17,29 +40,8 @@ object enemigo {
     }
   }
 
-  method perseguir() {
-    if (personaje.position().x() > self.position().x()) {
-      self.position(self.position().right(1))
-      orientacion = "right"
-    } else if (personaje.position().x() < self.position().x()) {
-      self.position(self.position().left(1))
-      orientacion = "left"
-    } else if (personaje.position().y() > self.position().y()) {
-      self.position(self.position().up(1))
-      orientacion = "up"
-    } else if (personaje.position().y() < self.position().y()) {
-      self.position(self.position().down(1))
-      orientacion = "down"
-    }
-  }
-
-  method atacar() {
-    if (self.position().distance(personaje.position()) == 1 and puedeAtacar) {
-      personaje.perderVida()
-      self.iniciarCooldownAtaque() 
-    }
-  }
-
+  // Cada vez que ataca comienza un contador de cooldown
+  // para que no ataque muy rapido de forma seguida
   method iniciarCooldownAtaque() {
     puedeAtacar = false
     game.schedule(2000, { 
@@ -47,6 +49,7 @@ object enemigo {
     })
   }
 
+  // Activa al enemigo
   method iniciarMovimiento() {
     game.onTick(500, "MovimientoEnemigo", { 
       self.detectar()
@@ -54,6 +57,7 @@ object enemigo {
     })
   }
 
+  // Desactiva al enemigo
   method detenerMovimiento() {
     if (game.hasVisual(self)) {
       game.removeTickEvent("MovimientoEnemigo")

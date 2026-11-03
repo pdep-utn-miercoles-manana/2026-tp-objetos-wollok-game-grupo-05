@@ -1,7 +1,6 @@
-import Personajes.*
-import PersonajePrincipal.*
 import Fondos.*
 import Mapa.*
+import PersonajePrincipal.*
 
 object menuInicio {
   const fondo = fondoInicio

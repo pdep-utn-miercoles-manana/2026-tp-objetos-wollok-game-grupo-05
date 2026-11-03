@@ -1,6 +1,6 @@
+import Mapa.*
 import Personajes.*
 import TextosEnPantalla.*
-import Mapa.*
 
 object estadoDelJuego {
   const personajes = [secretaria, huespedRaro, secretaria]
@@ -10,7 +10,7 @@ object estadoDelJuego {
     personajes.forEach({ p => p.reiniciarDialogo() })
   }
 
-    // Metodo para continuar despues de morir
+  // Metodo para continuar despues de morir y reiniciar estado del juego
   method continuarDespuesDeMorir() {
       game.removeVisual(textoDerrota)
       vidasVisual.cambiarVidas(3)
@@ -20,8 +20,13 @@ object estadoDelJuego {
       self.bloquearPuntosDeAcceso()
   }
 
-  method puntosDeAccesoConLlaveDesbloqueados() = puntosDeAccesoConLlave.filter({punto => punto.accesoDisponible()})
+  // Obtiene los puntos de acceso que requiren llave que fueron desbloqueados
+  // durante la partida
+  method puntosDeAccesoConLlaveDesbloqueados() = puntosDeAccesoConLlave.
+                                                 filter({punto => punto.accesoDisponible()})
 
+  // Bloquea los puntos de acceso que fueron desbloqueados durante
+  // la partida
   method bloquearPuntosDeAcceso() = self.puntosDeAccesoConLlaveDesbloqueados().
                                     forEach({ puntoDeAcceso => puntoDeAcceso.bloquearAcceso() })
 }

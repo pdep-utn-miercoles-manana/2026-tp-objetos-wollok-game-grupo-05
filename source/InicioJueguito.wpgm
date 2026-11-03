@@ -1,7 +1,4 @@
 import wollok.game.*
-import Personajes.*
-import Objetos.*
-import Mapa.*
 import Menus.*
 
 program juego {

@@ -24,14 +24,21 @@ class TextoEnPantalla {
 
 const textoConseguirLlave = new TextoEnPantalla (
   posicion = game.at(2,5),
-  texto = "Obtubiste: Llave de la Habitacion 202",
+  texto = "Obtuviste: Llave de la Habitacion 202",
+  colorTexto = colores.verde()
+)
+
+const textoConseguirOfrendas = new TextoEnPantalla (
+  posicion = game.center(),
+  texto = "Obtuviste: Ofrendas de los 4 altares",
   colorTexto = colores.verde()
 )
 
 const textoPista = new TextoEnPantalla (
   posicion = game.at(2, 6), 
   texto = "Objetivo: Habla con algun huesped",
-  colorTexto = colores.blanco()) 
+  colorTexto = colores.blanco()
+) 
 
 const textoDerrota = new TextoEnPantalla (
   posicion = game.center(),
@@ -49,3 +56,18 @@ const textoNota = new TextoEnPantalla (
     CODIGO 3951",
   colorTexto = colores.blanco()
 )
+
+object pantalla {
+  method mostrarDurante(unVisual, milisegundos) {
+    if (!game.hasVisual(unVisual)) {
+      game.addVisual(unVisual)
+      game.schedule(milisegundos, { self.ocultar(unVisual) })
+    }
+  }
+
+  method ocultar(unVisual) {
+    if (game.hasVisual(unVisual)) {
+      game.removeVisual(unVisual)
+    }
+  }
+}

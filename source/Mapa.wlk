@@ -1,11 +1,10 @@
-import wollok.game.*
-import Objetos.*
-import Personajes.*
 import EnemigosYJefeFinal.*
-import PersonajePrincipal.*
 import EstadoDelJuego.*
-import TextosEnPantalla.*
 import Fondos.*
+import Objetos.*
+import PersonajePrincipal.*
+import Personajes.*
+import TextosEnPantalla.*
 
 object mapa {
   var fondoActual = fondoHabitacion148

@@ -1,4 +1,3 @@
-
 class Fondo {
     var imagen
 
