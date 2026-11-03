@@ -1,6 +1,7 @@
 import Objetos.*
 import Mapa.*
 import Personajes.*
+import EstadoDelJuego.*
 
 object personaje {
   var property personajeElegido = null
@@ -155,12 +156,12 @@ object personaje {
     if(!derrotado) {
         vidas -= 1
 
-        if(vidas > 0){
-            vidasVisual.cambiarVidas(vidas)
-        } else {
+      if(vidas > 0){
+        vidasVisual.cambiarVidas(vidas)
+      } else {
         vidasVisual.cambiarVidas(vidas)
         self.morir()
-        }
+      }
     }
   }
 
@@ -176,6 +177,7 @@ object personaje {
       vidas = 3
       vidasVisual.cambiarVidas(3)
       mapa.reiniciarJuego()
+      estadoDelJuego.reiniciarDialogosDePersonajes()
       derrotado = false
     }
   }

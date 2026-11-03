@@ -41,6 +41,10 @@ class Npc {
       personaje.mirarA("left")
     }
   }
+
+  method reiniciarDialogo() {
+    numeroDeDialogo = 0
+  }
 }
 
 object huesped inherits Npc(position = game.at(11, 3), imagen = "pixel_character"){
