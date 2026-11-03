@@ -36,7 +36,6 @@ object personaje {
 
     // Al presionar 'h', para hablar con los Npcs
     keyboard.h().onPressDo({ 
-      huesped.hablarSiEstaCerca(self)
       secretaria.hablarSiEstaCerca(self)
       huespedRaro.hablarSiEstaCerca(self)
     })

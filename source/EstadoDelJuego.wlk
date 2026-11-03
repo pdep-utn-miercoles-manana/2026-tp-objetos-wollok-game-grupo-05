@@ -1,7 +1,7 @@
 import Personajes.*
 
 object estadoDelJuego {
-  const personajes = [huesped, huespedRaro, secretaria]
+  const personajes = [secretaria, huespedRaro, secretaria]
 
   method reiniciarDialogosDePersonajes() {
     personajes.forEach({ p => p.reiniciarDialogo() })

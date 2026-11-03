@@ -99,7 +99,7 @@ object cajaFuerte{
   var abierta = false 
   var ingresandoCodigo = false
 
-  var property position = game.at(9, 3)
+  var property position = game.center()
   const esSolido = false
 
   method esSolido() = esSolido

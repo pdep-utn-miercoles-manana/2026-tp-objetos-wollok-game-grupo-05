@@ -47,8 +47,9 @@ class Npc {
   }
 }
 
-object huesped inherits Npc(position = game.at(11, 3), imagen = "pixel_character"){
+object secretaria inherits Npc(position = game.at(11, 3), imagen = "Secretaria"){
   override method hablar() {
+    super()
     if(numeroDeDialogo == 0){
       game.say(self, "Estas buscando algo?")
     } else if (numeroDeDialogo == 1){
@@ -60,28 +61,6 @@ object huesped inherits Npc(position = game.at(11, 3), imagen = "pixel_character
 
     self.siguienteDialogo()
   }
-}
-
-object secretaria inherits Npc(position = game.center(), imagen = "Secretaria"){
-  override method hablar() {
-    super()
-    if(numeroDeDialogo == 0){
-      game.say(personaje, "Buen dia, necesito la llave de la habitacion 202. Es por una investigacion")
-    } else if (numeroDeDialogo == 1){
-      game.say(self, "...")
-    } else if (numeroDeDialogo == 2){
-      game.say(personaje, "¿Podria darme la llave?")
-    } else if (numeroDeDialogo == 3){
-      game.say(self, "...")
-    } else {
-      game.say(personaje, "Habra que buscar otra forma de entrar")
-      textoPista.cambiarTexto("Objetivo: Busca como entrar a la habitacion 202", colores.blanco())
-    } 
-  
-    self.siguienteDialogo()
-  }
-
-
 }
 
 object huespedRaro inherits Npc(position = game.at(1,3), imagen = "HuespedRaro"){
