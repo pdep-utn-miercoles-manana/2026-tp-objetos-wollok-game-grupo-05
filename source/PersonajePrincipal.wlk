@@ -2,92 +2,75 @@ import Objetos.*
 import Mapa.*
 import Personajes.*
 import EstadoDelJuego.*
+import Direcciones.*
+import Dialogos.*
+import Progreso.*
 
 object personaje {
   var property personajeElegido = null
   var property position = game.center()
-  var property orientacion = "down"
-  var cargandoCaja = false
+  var property orientacion = abajo
+  var objetoCargado = manosVacias
+  var modoDeMovimiento = caminando
   var enMovimiento = false
   var tieneLlave202 = false
   var derrotado = false
   var ubicacionActual = null
-  var numeroDeDialogo = 0
   var vidas = 3
 
   method opcionDePersonaje(opcion) {
     personajeElegido = opcion
   }
 
-  method image() = "Personaje" + personajeElegido + "_" + orientacion + ".png"
+  method image() = "Personaje" + personajeElegido + "_" + orientacion.nombre() + ".png"
 
   method configurarTeclas() {
-    keyboard.up().onPressDo({ if (!derrotado) self.moverseA(self.position().up(1), "up")})
-    keyboard.down().onPressDo({ if (!derrotado) self.moverseA(self.position().down(1), "down")})
-    keyboard.left().onPressDo({ if (!derrotado) self.moverseA(self.position().left(1), "left")})
-    keyboard.right().onPressDo({ if (!derrotado) self.moverseA(self.position().right(1), "right")})
-
-    // Al presionar 'e', cargamos o descargamos la caja
-    // hay que estar cerca y la posicion adelante tiene que ser valida
-    keyboard.e().onPressDo({ 
-      caja.cargarOAlternar(self.posicionAdelante(), ubicacionActual) 
-      cargandoCaja = cargandoCaja.negate()
+    // Flechas: cada direccion sabe cual es su tecla
+    direcciones.todas().forEach({ direccion =>
+      direccion.tecla().onPressDo({ self.mover(direccion) })
     })
 
-    // Al presionar 'h', para hablar con los Npcs
-    keyboard.h().onPressDo({ 
-      huesped.hablarSiEstaCerca(self)
-      secretaria.hablarSiEstaCerca(self)
-      huespedRaro.hablarSiEstaCerca(self)
-    })
+    // Mientras se mantiene Alt, las flechas solo giran al personaje
+    keyboard.alt().onPressDo({ self.cambiarModoDeMovimiento(soloGirando) })
+    keyboard.alt().onReleaseDo({ self.cambiarModoDeMovimiento(caminando) })
 
-    // Al presionar 'c', ingresamos el codigo de la caja fuerte
-    keyboard.c().onPressDo({ 
-      cajaFuerte.comenzarIngreso()
-    })
+    // Al presionar 'e', interactuamos con lo que tengamos adelante
+    // (hablar con un NPC, levantar o soltar la caja, leer la carta, usar la caja fuerte
+    // -empezar el codigo, confirmarlo y leer el expediente-, abrir una puerta)
+    keyboard.e().onPressDo({ self.interactuar() })
 
-    // detectar los numeros de la caja fuerte (solo toma combinaciones)
-    keyboard.num3().onPressDo({
-    cajaFuerte.ingresarCodigo("3")
-    })
-
-    keyboard.num9().onPressDo({
-    cajaFuerte.ingresarCodigo("9")
-    })
-
-    keyboard.num5().onPressDo({
-        cajaFuerte.ingresarCodigo("5")
-    })
-
-    keyboard.num1().onPressDo({
-        cajaFuerte.ingresarCodigo("1")
-    })
-
-    // al precionar 'x' confirma el codigo
-    keyboard.x().onPressDo({
-    cajaFuerte.confirmarCodigo()
-    })
-
-    // Al presionar 'a', leemos el expediente 
-    keyboard.a().onPressDo({ 
-      self.leerExpediente()
-    })
+    // Los numeros (0 a 9) se usan para el codigo de la caja fuerte
+    self.configurarTeclasNumericas()
 
     // Al presionar 'enter' reiniciamos la partida
-    keyboard.enter().onPressDo({ 
+    keyboard.enter().onPressDo({
       self.continuarDespuesDeMorir()
     })
 
     game.onCollideDo(self, { elemento =>
     elemento.recibirColisionDe(self)
     })
+  }
 
-    // Al presionar 'l', leemos la carta
-    keyboard.l().onPressDo({ 
-      game.addVisual(textoCarta)
-      game.schedule(3000, { game.removeVisual(textoCarta) })
-      textoPista.cambiarTexto("Objetivo: Busca la caja fuerte", colores.blanco())
+  method configurarTeclasNumericas() {
+    (0..9).forEach({ numero =>
+      keyboard.num(numero).onPressDo({ cajaFuerte.ingresarCodigo(numero.toString()) })
     })
+  }
+
+  // Con Alt apretado solo gira; si no, gira y avanza (lo decide el modo de movimiento)
+  method mover(direccion) {
+    if (!derrotado) {
+      modoDeMovimiento.mover(self, direccion)
+    }
+  }
+
+  method cambiarModoDeMovimiento(unModo) {
+    modoDeMovimiento = unModo
+  }
+
+  method caminarHacia(direccion) {
+    self.moverseA(direccion.siguiente(position), direccion)
   }
 
   method moverseA(nuevaPosicion, nuevaOrientacion) {
@@ -96,19 +79,22 @@ object personaje {
 
       if(ubicacionActual.esPosicionValida(nuevaPosicion)){
         enMovimiento = true
-        
-        game.schedule(200, {
-          position = nuevaPosicion
+        const posicionDeSalida = position
 
-          // Si la caja está siendo cargada por el personaje, se mueve con el
-          if (caja.cargadaPorPersonaje()) {
-            caja.position(nuevaPosicion.up(1))
+        game.schedule(200, {
+          // Si mientras tanto cambio de habitacion (por ejemplo, con E en una puerta),
+          // el paso ya no corresponde: se descarta
+          if (position == posicionDeSalida) {
+            position = nuevaPosicion
+
+            // Si lleva algo (por ejemplo la caja), eso lo sigue
+            objetoCargado.seguirA(nuevaPosicion)
           }
 
           enMovimiento = false
         })
       }
-    } 
+    }
   }
 
   method mirarA(nuevaOrientacion) {
@@ -119,32 +105,58 @@ object personaje {
     ubicacionActual = nuevaUbicacion
   }
 
-  method posicionAdelante() {
-    return if (orientacion == "up") { 
-      position.up(1) }
-    else if (orientacion == "down") { 
-      position.down(1) }
-    else if (orientacion == "left") { 
-      position.left(1) }
-    else if (orientacion == "right") { 
-      position.right(1) }
-    else {
-      position
+  method posicionAdelante() = orientacion.siguiente(position)
+
+  method puedeIrA(unaPosicion) = ubicacionActual.esPosicionValida(unaPosicion)
+
+  // ---- Interaccion ----
+
+  method interactuar() {
+    if (!derrotado) {
+      objetoCargado.usar(self)
     }
   }
 
-  method leerExpediente() {
-    if(numeroDeDialogo == 0){
-      game.say(self, "Aqui hay informacion sobre el huesped desaparecido")
-    } else if (numeroDeDialogo == 1){
-      game.say(self, "Se hospedaba en la habitacion 202")
-    } else {
-      game.say(self, "Quizas alli encuentre mas pistas y logre salir de aquí")
-      textoPista.cambiarTexto("Objetivo: Consigue la llave de la habitacion 202", colores.blanco())
-    }
+  // Con cada E se interactua con UNA sola cosa (la primera de objetosAlAlcance).
+  // Todo lo que pueda estar al alcance tiene que entender interactuar(unPersonaje)
+  method interactuarConLoQueTieneAlAlcance() {
+    const objetos = self.objetosAlAlcance()
 
-    numeroDeDialogo += 1
+    if (!objetos.isEmpty()) {
+      objetos.first().interactuar(self)
+    }
   }
+
+  // Ordenados por prioridad:
+  //  1. lo solido que este adelante (un NPC, la caja). Lo solido tapa lo que tenga abajo:
+  //     por eso, si la caja esta sobre la carta, primero hay que sacar la caja
+  //  2. lo que este en el mismo casillero (por ejemplo, la carta si estas parado encima)
+  //  3. el resto de lo que este adelante (por ejemplo, una puerta)
+  method objetosAlAlcance() {
+    const adelante = game.getObjectsIn(self.posicionAdelante())
+    const aca = game.getObjectsIn(position).filter({ objeto => objeto != self })
+    const solidosAdelante = adelante.filter({ objeto => objeto.esSolido() })
+    return [solidosAdelante, aca, adelante].flatMap({ objetos => objetos })
+  }
+
+  method cargar(unObjeto) {
+    objetoCargado = unObjeto
+  }
+
+  method soltar() {
+    objetoCargado = manosVacias
+  }
+
+  // Lo decide lo que lleva encima: con las manos vacias si, con la caja no
+  method puedeCambiarDeHabitacion() = objetoCargado.permiteCambiarDeHabitacion()
+
+  // Vuelve al casillero de donde vino (el opuesto a donde esta mirando)
+  method retroceder() {
+    position = orientacion.opuesta().siguiente(position)
+    objetoCargado.seguirA(position)
+  }
+
+  // ---- Historia ----
 
   method tieneLlave202() = tieneLlave202
 
@@ -181,6 +193,27 @@ object personaje {
       derrotado = false
     }
   }
+}
+
+// Modos de movimiento: las flechas hacen algo distinto segun el modo (polimorfismo)
+object caminando {
+  method mover(unPersonaje, direccion) { unPersonaje.caminarHacia(direccion) }
+}
+
+object soloGirando {
+  method mover(unPersonaje, direccion) { unPersonaje.mirarA(direccion) }
+}
+
+// Lo que "lleva" el personaje cuando no carga nada (objeto nulo).
+// Si no lleva nada, la tecla E interactua con lo que tiene al alcance.
+object manosVacias {
+  method usar(unPersonaje) {
+    unPersonaje.interactuarConLoQueTieneAlAlcance()
+  }
+
+  method seguirA(unaPosicion) {}
+
+  method permiteCambiarDeHabitacion() = true
 }
 
 object vidasVisual {

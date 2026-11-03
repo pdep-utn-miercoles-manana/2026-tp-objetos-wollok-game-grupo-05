@@ -11,7 +11,7 @@ object mapa {
     // Usamos addVisual en vez de addVisualCharacter para tener control total del movimiento
     game.addVisual(personaje)
     game.addVisual(vidasVisual)
-    self.configurarUbicacion(fondoActual, [puerta148HaciaPasilloPiso1, puerta148HaciaPasilloJefe], [])
+    self.configurarUbicacion(fondoActual, [puerta148HaciaPasilloPiso1, puerta148HaciaPasilloJefe] + cajasDeLaHabitacion148, [])
     personaje.cambiarUbicacion(habitacion)
   }
 
@@ -45,7 +45,7 @@ object mapa {
     enemigo.detenerMovimiento()
     self.configurarUbicacion(
       fondoHabitacion148, 
-      [puerta148HaciaPasilloJefe, puerta148HaciaPasilloPiso1], 
+      [puerta148HaciaPasilloJefe, puerta148HaciaPasilloPiso1] + cajasDeLaHabitacion148, 
       [puerta202HaciaPasilloPiso2, enemigo, carta]
       )
 
@@ -88,11 +88,29 @@ class PuntoDeAcceso {
 
   method esSolido() = esSolido
 
+
   method image() = imagen
 
   method puedePasar(personaje) = true
 
+  // Pararse frente a una puerta o escalera y apretar E es lo mismo que atravesarla
+  // (mientras lleva la caja, la E la suelta, asi que por aca nunca se sale cargando algo)
+  method interactuar(unPersonaje) {
+    self.atravesar(unPersonaje)
+  }
+
+  // Al pisar la salida: si lleva algo encima no puede cambiar de habitacion,
+  // asi que vuelve al casillero de donde venia
   method recibirColisionDe(personaje) {
+    if (personaje.puedeCambiarDeHabitacion()) {
+      self.atravesar(personaje)
+    } else {
+      personaje.retroceder()
+      game.say(personaje, "Primero tengo que dejar la caja en el piso")
+    }
+  }
+
+  method atravesar(personaje) {
     if(self.puedePasar(personaje)){
 
       if (objetosAEliminar.contains(enemigo)) {
@@ -118,7 +136,7 @@ const puerta148HaciaPasilloJefe = new PuntoDeAcceso (
   position = game.at(7, 5),
   objetosAAgregar = [puertaPasilloJefeHacia148],
   objetosAEliminar = [puerta148HaciaPasilloPiso1, 
-                      puerta148HaciaPasilloJefe],
+                      puerta148HaciaPasilloJefe] + cajasDeLaHabitacion148,
   fondoDestino = fondoPasilloJefe,
   posicionNuevaPersonajeX = 7,
   posicionNuevaPersonajeY = 1,
@@ -129,7 +147,7 @@ const puerta148HaciaPasilloJefe = new PuntoDeAcceso (
 const puertaPasilloJefeHacia148 = new PuntoDeAcceso (
   position = game.at(7,0),
   objetosAAgregar = [puerta148HaciaPasilloPiso1, 
-                     puerta148HaciaPasilloJefe],
+                     puerta148HaciaPasilloJefe] + cajasDeLaHabitacion148,
   objetosAEliminar = [puertaPasilloJefeHacia148],
   fondoDestino = fondoHabitacion148,
   posicionNuevaPersonajeX = 7,
@@ -146,7 +164,7 @@ const puerta148HaciaPasilloPiso1 = new PuntoDeAcceso (
                      huesped, 
                      escalerasDeSubidaHaciaSecretaria],
   objetosAEliminar = [puerta148HaciaPasilloPiso1,
-                      puerta148HaciaPasilloJefe],
+                      puerta148HaciaPasilloJefe] + cajasDeLaHabitacion148,
   fondoDestino = fondoPasilloPiso1,
   posicionNuevaPersonajeX = 7,
   posicionNuevaPersonajeY = 2,
@@ -156,7 +174,7 @@ const puerta148HaciaPasilloPiso1 = new PuntoDeAcceso (
 const puertaPasilloPiso1HaciaHabitacion148 = new PuntoDeAcceso (
   position = game.at(7, 3),
   objetosAAgregar = [puerta148HaciaPasilloPiso1,
-                     puerta148HaciaPasilloJefe],
+                     puerta148HaciaPasilloJefe] + cajasDeLaHabitacion148,
   objetosAEliminar = [puertaPasilloPiso1HaciaHabitacion148, 
                       huesped, 
                       escalerasDeBajadaHaciaPasilloSubsuelo,
