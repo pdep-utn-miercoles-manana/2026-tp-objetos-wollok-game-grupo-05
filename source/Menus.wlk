@@ -8,6 +8,7 @@ object menuInicio {
   var fondoConMensajePresionarEnter = true
   var frame = 0
   const frameFinal = 15
+  var transicionIniciada = false
 
   method configurarMenu() {
     game.addVisual(fondo)
@@ -29,21 +30,26 @@ object menuInicio {
   }
 
   // Realiza la transicion al menu de Seleccion de Personaje
+  // (Enter sigue escuchandose en la seleccion de personaje, por eso
+  // la transicion se hace una sola vez; si no, se agregaba dos veces el fondo)
   method transicionASeleccionDePersonaje(){
+    if (!transicionIniciada) {
+      transicionIniciada = true
 
-    // se envia el mensaje avanzarUnFrame y si llega
-    // al frame final se resetea el frame y avanza
-    game.onTick(100, "AnimacionMenuPrincipal", {
-      self.avanzarUnFrame()
+      // se envia el mensaje avanzarUnFrame y si llega
+      // al frame final se resetea el frame y avanza
+      game.onTick(100, "AnimacionMenuPrincipal", {
+        self.avanzarUnFrame()
 
-      if(frame == frameFinal){
-        game.removeTickEvent("AnimacionMenuPrincipal")
-        frame = 0
+        if(frame == frameFinal){
+          game.removeTickEvent("AnimacionMenuPrincipal")
+          frame = 0
 
-        game.removeVisual(fondo)
-        menuSeleccionDePersonaje.configurarMenu()
-      }
-    })
+          game.removeVisual(fondo)
+          menuSeleccionDePersonaje.configurarMenu()
+        }
+      })
+    }
   }
 
   // Avanza un frame cambiando la imagen del fondo

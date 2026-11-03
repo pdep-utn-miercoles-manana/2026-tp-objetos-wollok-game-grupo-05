@@ -1,6 +1,8 @@
 import Personajes.*
 import PersonajePrincipal.*
 import wollok.game.*
+import Progreso.*
+import Dialogos.*
 
 object colores {
   const property negro = "000000"
@@ -10,7 +12,16 @@ object colores {
 
 }
 
-object textoPista{
+// Los textos que aparecen en pantalla pueden quedar en el mismo casillero
+// que el personaje, asi que entienden lo mismo que el resto de los visuales:
+// no son solidos y no reaccionan si los pisa o interactua con ellos
+class Texto {
+  method esSolido() = false
+  method recibirColisionDe(unPersonaje) {}
+  method interactuar(unPersonaje) {}
+}
+
+object textoPista inherits Texto {
   var texto = "Objetivo: Habla con algun huesped"
   var colorActual = colores.blanco()
 
@@ -25,35 +36,86 @@ object textoPista{
   }
 }
 
- object invisible {
-  method position() = game.origin()
+// Muestra un visual (por ejemplo un texto) durante un tiempo.
+// Si ya se esta mostrando, no lo agrega de nuevo (evita el error de agregar dos veces el mismo visual)
+object pantalla {
+  method mostrarDurante(unVisual, milisegundos) {
+    if (!game.hasVisual(unVisual)) {
+      game.addVisual(unVisual)
+      game.schedule(milisegundos, { self.ocultar(unVisual) })
+    }
+  }
+
+  method ocultar(unVisual) {
+    if (game.hasVisual(unVisual)) {
+      game.removeVisual(unVisual)
+    }
+  }
 }
 
-object caja{
-  var property position = game.center()
+// Una caja que el personaje puede levantar (E), llevar arriba de la cabeza y soltar (E)
+class Caja {
+  var property position
   var property cargadaPorPersonaje = false
   var esSolido = true
 
   method esSolido() = esSolido
 
+
   method image() = "Caja.png"
- 
-  method cargarOAlternar(posicionAdelante, ubicacionActual) {
-    // Si el personaje no esta cargando la caja y esta al lado,
-    // alternamos el estado de carga
-    if (cargadaPorPersonaje.negate() and 
-      personaje.position().distance(position) <= 1 and posicionAdelante == position) {
-      cargadaPorPersonaje = true
-      esSolido = false
-      position = personaje.position().up(1)
-    } else if (cargadaPorPersonaje and ubicacionActual.esPosicionValida(posicionAdelante)) {
-      position = personaje.posicionAdelante()
-      cargadaPorPersonaje = false
-      esSolido = true
+
+  // Si el personaje interactua con la caja (la tiene adelante), la levanta
+  method interactuar(unPersonaje) {
+    cargadaPorPersonaje = true
+    esSolido = false
+    self.seguirA(unPersonaje.position())
+    unPersonaje.cargar(self)
+  }
+
+  // Mientras la lleva, la tecla E la suelta adelante,
+  // solo si ese casillero es piso libre (no hay puertas, carta, NPCs, otras cajas, etc.)
+  method usar(unPersonaje) {
+    const destino = unPersonaje.posicionAdelante()
+
+    if (self.puedeApoyarseEn(destino, unPersonaje)) {
+      self.apoyarEn(destino, unPersonaje)
+    } else {
+      game.say(unPersonaje, "No puedo dejar la caja ahi")
     }
   }
 
+  method puedeApoyarseEn(unaPosicion, unPersonaje) =
+    unPersonaje.puedeIrA(unaPosicion) and self.estaLibre(unaPosicion)
+
+  // Libre = no hay nada, sin contar a esta misma caja
+  // (mirando hacia arriba, la caja que llevamos ocupa justo el casillero de adelante)
+  method estaLibre(unaPosicion) = game.getObjectsIn(unaPosicion).all({ objeto => objeto == self })
+
+  method apoyarEn(unaPosicion, unPersonaje) {
+    position = unaPosicion
+    cargadaPorPersonaje = false
+    esSolido = true
+    unPersonaje.soltar()
+  }
+
+  // Mientras la lleva, la caja va arriba del personaje
+  method seguirA(posicionDelPersonaje) {
+    position = posicionDelPersonaje.up(1)
+  }
+
+  // La caja no se puede sacar de la habitacion
+  method permiteCambiarDeHabitacion() = false
 }
+
+// La caja del deposito (esta arriba de la carta)
+const caja = new Caja(position = game.center())
+
+// Las cajas que rodean la salida de la habitacion 148 hacia el pasillo del piso 1
+const cajasDeLaHabitacion148 = [
+  new Caja(position = game.at(6, 1)),
+  new Caja(position = game.at(7, 1)),
+  new Caja(position = game.at(8, 1))
+]
 
 object carta{
   var property position = game.center()
@@ -63,19 +125,25 @@ object carta{
 
   method image() = "written_paper.png"
 
+
   method recibirColisionDe(personaje) {
-    game.say(personaje, "Aqui hay una carta")
-
-  game.schedule(2000, {
-        game.addVisual(invisible)
-    })
-
+    game.say(personaje, "Aqui hay una carta (E para leerla)")
   }
 
+  method interactuar(unPersonaje) {
+    self.leer()
+  }
+
+  method leer() {
+    if (progreso.alcanzo(irAlDeposito)) {
+      pantalla.mostrarDurante(textoCarta, 3000)
+      progreso.completar(irAlDeposito)
+    }
+  }
 }
 
-object textoCarta {
-  var texto = "REGISTO DE HUESPEDES
+object textoCarta inherits Texto {
+  var texto = "REGISTRO DE HUESPEDES
     Y EMPLEADOS GUARDADOS EN
     LA CAJA FUERTE DEL 
     DEPOSITO DEL HOTEL
@@ -93,56 +161,92 @@ object textoCarta {
 
 }
 
-object cajaFuerte{
+// La caja fuerte cambia de comportamiento segun su estado (cerrada, ingresando el codigo
+// o abierta). En vez de preguntar con if por variables booleanas, le delega al estado actual.
+object cajaFuerte {
   const codigoCorrecto = "3951"
   var codigoIngresado = ""
-  var abierta = false 
-  var ingresandoCodigo = false
+  var estado = cajaCerrada
 
   var property position = game.at(9, 3)
-  const esSolido = false
 
-  method esSolido() = esSolido
+  method esSolido() = true
+
 
   method image() = "CajaFuerte.png"
 
-  method recibirColisionDe(personaje) {
-    game.say(personaje, "Se necesita un codigo")
-
+  // Tecla E (solo una vez que la historia llego a este punto)
+  method interactuar(unPersonaje) {
+    if (progreso.alcanzo(abrirLaCajaFuerte)) {
+      estado.interactuar(self)
+    }
   }
 
-  method ingresarCodigo(unCodigo) {
-    if(ingresandoCodigo && !abierta){
-      codigoIngresado += unCodigo
-      game.say(personaje, codigoIngresado)
-    }
-    
+  // Teclas numericas
+  method ingresarCodigo(unDigito) {
+    estado.ingresarDigito(self, unDigito)
   }
 
-  method confirmarCodigo(){
-    if(codigoIngresado == codigoCorrecto){
-      abierta = true
-      ingresandoCodigo = false
-      personaje.leerExpediente()
-    } else {
-    game.say(personaje, "Este codigo no funciona")
-    codigoIngresado = ""
-    ingresandoCodigo = false
-    }
-  } 
-  
+  // ---- Usados por los estados ----
+
   method comenzarIngreso() {
-    if(self.position().distance(personaje.position()) <= 1 && !abierta){
-      ingresandoCodigo = true
-      codigoIngresado = ""
-      game.say(personaje, "Ahora podes ingresar el codigo")
-    }
-    
+    codigoIngresado = ""
+    estado = cajaIngresandoCodigo
+    game.say(personaje, "Ingresa el codigo y confirma con E")
   }
 
+  method agregarDigito(unDigito) {
+    codigoIngresado += unDigito
+    game.say(personaje, codigoIngresado)
+  }
+
+  method confirmarCodigo() {
+    if (codigoIngresado == codigoCorrecto) {
+      estado = cajaAbierta
+      expediente.leer()
+    } else {
+      estado = cajaCerrada
+      game.say(personaje, "Este codigo no funciona")
+    }
+  }
 }
 
-object textoDerrota {
+// Cerrada: E empieza a ingresar el codigo; los numeros no hacen nada
+object cajaCerrada {
+  method interactuar(unaCaja) { unaCaja.comenzarIngreso() }
+  method ingresarDigito(unaCaja, unDigito) {}
+}
+
+// Ingresando el codigo: los numeros se van agregando y E confirma
+object cajaIngresandoCodigo {
+  method interactuar(unaCaja) { unaCaja.confirmarCodigo() }
+  method ingresarDigito(unaCaja, unDigito) { unaCaja.agregarDigito(unDigito) }
+}
+
+// Abierta: E lee el expediente que estaba guardado adentro
+object cajaAbierta {
+  method interactuar(unaCaja) { expediente.leer() }
+  method ingresarDigito(unaCaja, unDigito) {}
+}
+
+// Los papeles guardados en la caja fuerte. Los lee el personaje en voz alta;
+// al terminar de leerlos se cumple el objetivo de abrir la caja fuerte
+object expediente {
+  const contenido = new Dialogo(
+    lineas = [
+      new LineaDelPersonaje(texto = "Aqui hay informacion sobre el huesped desaparecido"),
+      new LineaDelPersonaje(texto = "Se hospedaba en la habitacion 202"),
+      new LineaDelPersonaje(texto = "Quizas alli encuentre mas pistas y logre salir de aquí")
+    ],
+    objetivo = abrirLaCajaFuerte
+  )
+
+  method leer() {
+    contenido.decirSiguiente(personaje)
+  }
+}
+
+object textoDerrota inherits Texto {
   const texto = "HAS MUERTO. PRESIONA ENTER PARA CONTINUAR"
 
   method position() = game.center()
