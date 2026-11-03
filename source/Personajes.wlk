@@ -51,12 +51,12 @@ object secretaria inherits Npc(position = game.at(11, 3), imagen = "Secretaria")
   override method hablar() {
     super()
     if(numeroDeDialogo == 0){
-      game.say(self, "Estas buscando algo?")
+      game.say(self, "¿Estás buscando algo?")
     } else if (numeroDeDialogo == 1){
-      game.say(personaje, "Sí, investigo una desaparicion")
+      game.say(personaje, "Sí, investigo una desaparición")
     } else {
-      game.say(self, "Quizas encuentres algo en el deposito del hotel")
-      textoPista.cambiarTexto("Objetivo: Ve al deposito", colores.blanco())
+      game.say(self, "Quizás encuentres algo en lahabitacion 202")
+      textoPista.cambiarTexto("Objetivo: Ve a la habitación 202", colores.blanco())
     }
 
     self.siguienteDialogo()
@@ -75,7 +75,7 @@ object huespedRaro inherits Npc(position = game.at(1,3), imagen = "HuespedRaro")
     } else if (numeroDeDialogo == 3){
       game.say(personaje, "La necesito para resolver un caso")
     } else {
-      game.say(self, "Toma, pero recuerda que te lo advertí")
+      game.say(self, "Está bien, al entrar habrá una nota, tomala, pero ten cuidado")
       personaje.conseguirLlave202()
       
       game.addVisual(obtenerLlave)
@@ -90,11 +90,7 @@ object huespedRaro inherits Npc(position = game.at(1,3), imagen = "HuespedRaro")
   }
 }
 
-object obtenerLlave {
-  method position() = game.at(2, 5)
-  method text() = "Obtubiste: Llave de la Habitacion 202"
-  method textColor() = colores.verde()
-}
+const obtenerLlave = new TextoObtenido(mensaje = "Obtuviste: Llave de la Habitacion 202")
 
 object enemigo {
   var property position = game.at(7,5)

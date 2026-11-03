@@ -72,7 +72,25 @@ object carta{
 
   }
 
+  method tomarCarta() {
+     if(self.position() == personaje.position()){
+      game.addVisual(obtenerCarta)
+      game.removeVisual(self)
+    }
+    
+  }
+
 }
+
+class TextoObtenido {
+  const mensaje
+
+  method position() = game.at(2, 5)
+  method text() = mensaje
+  method textColor() = colores.verde()
+}
+
+const obtenerCarta = new TextoObtenido(mensaje = "Obtuviste: Carta")
 
 object textoCarta {
   var texto = "REGISTO DE HUESPEDES

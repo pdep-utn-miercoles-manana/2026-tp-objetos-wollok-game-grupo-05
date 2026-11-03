@@ -7,6 +7,15 @@ import Fondos.*
 object mapa {
   var fondoActual = fondoHabitacion148
 
+  var salirDeHabitacion202 = false
+
+  method salirDeHabitacion202() = salirDeHabitacion202
+
+  method activarCambioAlSalirDe202() {
+    salirDeHabitacion202 = true
+    
+  }
+
   method primeraUbicacion() { 
     // Usamos addVisual en vez de addVisualCharacter para tener control total del movimiento
     game.addVisual(personaje)
@@ -18,6 +27,10 @@ object mapa {
   method configurarUbicacion (fondoNuevo, objetosAAgregar, objetosAEliminar) {
     self.cambiarFondo(fondoNuevo)
     self.cambiarObjetosDeUbicacion(objetosAAgregar, objetosAEliminar)
+    if (self.salirDeHabitacion202()) {
+      game.removeVisual(huespedRaro)
+      game.removeVisual(secretaria)
+    }
     self.restablecerPersonajeYPista()
   }
 
@@ -157,7 +170,7 @@ const puertaPasilloJefeHacia148 = new PuntoDeAcceso (
 const puerta148HaciaPasilloPiso1 = new PuntoDeAcceso (
   position = game.at(7, 0),
   objetosAAgregar = [escalerasDeBajadaHaciaPasilloSubsuelo, 
-                     puertaPasilloPiso1HaciaHabitacion148, 
+                     puertaPasilloPiso1HaciaHabitacion148Parte2, 
                      secretaria, 
                      escalerasDeSubidaHaciaPasilloPiso2],
   objetosAEliminar = [puerta148HaciaPasilloPiso1,
@@ -215,7 +228,7 @@ class PuertaConLlave inherits PuntoDeAcceso {
   override method puedePasar(personaje) = personaje.tieneLlave202()
 }
 
-const puerta202HaciaPasilloPiso2 = new PuntoDeAcceso (
+const puerta202HaciaPasilloPiso2 = new SalidaDeHabitacion202 (
   position = game.at(7, 0),
   objetosAAgregar = [puertaPasilloPiso2HaciaHabitacion202,
                      escalerasDeBajadaHaciaPasilloPiso1,
@@ -305,4 +318,64 @@ const escalerasDeBajadaHaciaPasilloPiso1 = new PuntoDeAcceso (
   posicionNuevaPersonajeY = 2,
   nuevaUbicacion = pasillo,
   imagen = "EscalerasBajada_Invertida.png"
+)
+
+// Al salir de la habitacion 202
+
+class NuevaHabitacion inherits PuntoDeAcceso {
+  override method recibirColisionDe(personaje) {
+    if (mapa.salirDeHabitacion202()) {
+      super(personaje)
+    }
+  }
+}
+
+class SalidaDeHabitacion202 inherits PuntoDeAcceso {
+  override method recibirColisionDe(personaje) {
+    mapa.activarCambioAlSalirDe202()
+    super(personaje)
+  }
+}
+
+const puerta148HaciaPasilloPiso1Parte2 = new NuevaHabitacion (
+  position = game.at(7, 0),
+  objetosAAgregar = [escalerasDeBajadaHaciaPasilloSubsuelo, 
+                     puertaPasilloPiso1HaciaHabitacion148,
+                     escalerasDeSubidaHaciaPasilloPiso2],
+  objetosAEliminar = [puerta148HaciaPasilloPiso1,
+                      puerta148HaciaPasilloJefe],
+  fondoDestino = fondoPasilloPiso1,
+  posicionNuevaPersonajeX = 7,
+  posicionNuevaPersonajeY = 2,
+  nuevaUbicacion = pasillo,
+  imagen = "Puerta_horizontal.png")
+
+const escalerasDeSubidaHaciaPasilloPiso2Parte2 = new NuevaHabitacion (
+  position = game.at(13, 2),
+  objetosAAgregar = [escalerasDeBajadaHaciaPasilloPiso1,
+                     puertaPasilloPiso2HaciaHabitacion202],
+  objetosAEliminar = [escalerasDeSubidaHaciaPasilloPiso2,
+                      escalerasDeBajadaHaciaPasilloSubsuelo,
+                      secretaria,
+                      puertaPasilloPiso1HaciaHabitacion148],
+  fondoDestino = fondoPasilloPiso2,
+  posicionNuevaPersonajeX = 12,
+  posicionNuevaPersonajeY = 2,
+  nuevaUbicacion = pasillo,
+  imagen = "EscalerasSubida_Invertida.png")
+
+  const puertaPasilloPiso1HaciaHabitacion148Parte2 = new NuevaHabitacion (
+  position = game.at(7, 3),
+  objetosAAgregar = [puerta148HaciaPasilloPiso1,
+                     puerta148HaciaPasilloJefe,
+                     huespedRaro],
+  objetosAEliminar = [puertaPasilloPiso1HaciaHabitacion148, 
+                      secretaria, 
+                      escalerasDeBajadaHaciaPasilloSubsuelo,
+                      escalerasDeSubidaHaciaPasilloPiso2],
+  fondoDestino = fondoHabitacion148,
+  posicionNuevaPersonajeX = 7,
+  posicionNuevaPersonajeY = 1,
+  nuevaUbicacion = habitacion,
+  imagen = "Puerta_horizontal.png"
 )

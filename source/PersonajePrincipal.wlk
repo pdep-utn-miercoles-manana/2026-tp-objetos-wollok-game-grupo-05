@@ -81,6 +81,11 @@ object personaje {
     elemento.recibirColisionDe(self)
     })
 
+    // Al presionar 't' tomamos la carta
+    keyboard.t().onPressDo({ 
+      carta.tomarCarta()
+    })
+
     // Al presionar 'l', leemos la carta
     keyboard.l().onPressDo({ 
       game.addVisual(textoCarta)
