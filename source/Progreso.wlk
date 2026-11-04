@@ -12,7 +12,7 @@ class Objetivo {
 const hablarConSecretaria = new Objetivo(descripcion = "Habla con la secretaria")
 const buscarLaHabitacion202 = new Objetivo(descripcion = "Busca la habitacion 202")
 const investigarLaHabitacion202 = new Objetivo(descripcion = "Investiga que hay dentro de la habitacion 202")
-const seguirIndicacionesDeLaNota = new Objetivo(descripcion = "En la nota aparece un codigo '3591', busca donde usarlo")
+const seguirIndicacionesDeLaNota = new Objetivo(descripcion = "En la nota aparece un codigo '3951', busca donde usarlo")
 const buscarDondeUsarLasOfrendas = new Objetivo(descripcion = "Has obtenido 4 ofrendas, busca el lugar indicado para usarlas")
 
 const derrotarAlJefe = new Objetivo(descripcion = "Derrota al Jefe para escapar del hotel")

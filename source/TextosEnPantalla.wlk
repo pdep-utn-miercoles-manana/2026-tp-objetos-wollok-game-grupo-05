@@ -11,6 +11,8 @@ class TextoEnPantalla {
 
   method textColor() = colorTexto
 
+  method esSolido() = false
+
   method cambiarTexto(nuevoTexto) {
     texto = nuevoTexto
   }
@@ -56,6 +58,12 @@ const textoDerrota = new TextoEnPantalla (
   posicion = game.center(),
   texto = "HAS MUERTO. PRESIONA ENTER PARA CONTINUAR",
   colorTexto = colores.rojo()
+)
+
+const textoVencerAlJefe = new TextoEnPantalla (
+  posicion = game.center(),
+  texto = "PULSA E CERCA DEL JEFE PARA VENCERLO",
+  colorTexto = colores.negro()
 )
 
 const textoNota = new TextoEnPantalla (

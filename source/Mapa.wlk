@@ -88,6 +88,7 @@ object mapa {
     })
     objetosActuales.clear()
   }
+  
 }
 
 object casillaCharlaJefe {
@@ -115,6 +116,7 @@ object casillaCharlaJefe {
       charlaIniciada = true
       unPersonaje.mirarA(derecha)
       self.avanzarDialogoAutomatico(unPersonaje)
+      game.addVisual(textoVencerAlJefe)
     }
   }
 

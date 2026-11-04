@@ -1,6 +1,8 @@
 import Direcciones.*
 import Mapa.*
 import PersonajePrincipal.*
+import source.TextosEnPantalla.*
+
 
 object jefeFinal {
   var property position = game.at(11, 3)
