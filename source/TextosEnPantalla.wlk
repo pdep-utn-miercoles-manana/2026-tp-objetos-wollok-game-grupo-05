@@ -11,6 +11,8 @@ class TextoEnPantalla {
 
   method textColor() = colorTexto
 
+  method esSolido() = false
+
   method cambiarTexto(nuevoTexto) {
     texto = nuevoTexto
   }
@@ -46,6 +48,12 @@ const textoColocarOfrendas = new TextoEnPantalla (
   colorTexto = colores.blanco()
 )
 
+const textoVencerAlJefe = new TextoEnPantalla (
+  posicion = game.center(),
+  texto = "PULSA E CERCA DEL JEFE PARA VENCERLO",
+  colorTexto = colores.negro()
+)
+
 const textoPista = new TextoEnPantalla (
   posicion = game.at(11, 0), 
   texto = "Objetivo: Habla con algun huesped",
@@ -56,17 +64,6 @@ const textoDerrota = new TextoEnPantalla (
   posicion = game.center(),
   texto = "HAS MUERTO. PRESIONA ENTER PARA CONTINUAR",
   colorTexto = colores.rojo()
-)
-
-const textoNota = new TextoEnPantalla (
-  posicion = game.center(),
-  texto = "REGISTO DE HUESPEDES
-    Y EMPLEADOS GUARDADOS EN
-    LA CAJA FUERTE DEL 
-    DEPOSITO DEL HOTEL
-    
-    CODIGO 3951",
-  colorTexto = colores.blanco()
 )
 
 object pantalla {

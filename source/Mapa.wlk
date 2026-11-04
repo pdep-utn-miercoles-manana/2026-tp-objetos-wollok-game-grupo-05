@@ -9,6 +9,8 @@ import Personajes.*
 import Progreso.*
 import TextosEnPantalla.*
 
+const objetosObtenidos = #{}
+
 object mapa {
   var fondoActual = fondoHabitacion148
   const objetosActuales = []
@@ -40,9 +42,11 @@ object mapa {
     })
 
     objetosAAgregar.forEach({ objeto => 
-      game.addVisual(objeto)
-      if (!objetosActuales.contains(objeto)) {
+      if (!objetosObtenidos.contains(objeto)) {
+        game.addVisual(objeto)
+        if (!objetosActuales.contains(objeto)) {
         objetosActuales.add(objeto)
+        }
       }
     })
   }
@@ -97,7 +101,12 @@ object casillaCharlaJefe {
       lineas = [
       new LineaDelNpc(texto = "Has llegado a la sala Final.."),
       new LineaDelNpc(texto = "¿Tienes lo necesario para derrotarme?"),
-      new LineaDelPersonaje(texto = "No lo sabre hasta que lo intente"),
+      new LineaDelPersonaje(texto = "¡Ahora recuerdo todo!"),
+      new LineaDelPersonaje (texto = "¡Tu me borraste la memoria!"),
+      new LineaDelPersonaje (texto = "Las personas que me ayudaron a llegar hasta aqui..."),
+      new LineaDelPersonaje (texto = "¡Son desaparecidos de hace mucho tiempo!"),
+      new LineaDelPersonaje (texto = "Y mi trabajo aqui era descubrir que habia pasado."),
+      new LineaDelPersonaje (texto = "¡Vengare a esas personas!"),
       new LineaDelNpc(texto = "¡Entonces ven a por mí!")
     ],
     objetivo = derrotarAlJefe,
@@ -126,6 +135,8 @@ object casillaCharlaJefe {
       // Forzamos a que se imprima la última línea que faltaba mostrarse
       dialogo.decirSiguiente(jefeFinal)
       unPersonaje.cambiarModoDeMovimiento(caminando)
+      game.addVisual(textoVencerAlJefe)
+      game.schedule(3000, { game.removeVisual(textoVencerAlJefe) })
     }
   }
 }

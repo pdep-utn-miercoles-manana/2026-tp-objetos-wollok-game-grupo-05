@@ -3,24 +3,25 @@ import Mapa.*
 import Objetos.*
 import PersonajePrincipal.*
 import Personajes.*
+import Progreso.*
 import TextosEnPantalla.*
 
 object estadoDelJuego {
-  const objetos = [jefeFinal, secretaria, huespedRaro, secretaria, cajaFuerte]
+  const objetosAReiniciar = [secretaria, huespedRaro, secretaria, llave202]
   const puntosDeAccesoConLlave = [puertaPasilloPiso2HaciaHabitacion202]
 
-  method reiniciarDialogosDePersonajes() {
-    objetos.forEach({ o => o.reiniciarDialogo() })
+  method reiniciarJuego() {
+    game.removeVisual(textoDerrota)
+    vidasVisual.cambiarVidas(3)
+    progreso.reiniciar()
+    mapa.reiniciarJuegoDesde(personaje.ubicacionActual())
+    objetosObtenidos.clear()
+    self.reiniciarObjetos()
+    self.bloquearPuntosDeAcceso()
   }
 
-  // Metodo para continuar despues de morir y reiniciar estado del juego
-  method continuarDespuesDeMorir() {
-      game.removeVisual(textoDerrota)
-      vidasVisual.cambiarVidas(3)
-      mapa.reiniciarJuegoDesde(personaje.ubicacionActual())
-      self.reiniciarDialogosDePersonajes()
-
-      self.bloquearPuntosDeAcceso()
+  method reiniciarObjetos() {
+    objetosAReiniciar.forEach({ objeto => objeto.reiniciar() })
   }
 
   // Obtiene los puntos de acceso que requiren llave que fueron desbloqueados

@@ -8,6 +8,10 @@ object llave202 {
   method usar() {
     puertaPasilloPiso2HaciaHabitacion202.desbloquearAcceso()
   }
+
+  method reiniciar() {
+    puertaPasilloPiso2HaciaHabitacion202.bloquearAcceso()
+  }
 }
 
 object nota {
@@ -16,7 +20,7 @@ object nota {
 
   method esSolido() = esSolido
 
-  method image() = "written_paper.png"
+  method image() = "Nota.png"
 
   method recibirColisionDe(personaje) {
     if(personaje.tieneObjeto(self).negate()){
@@ -27,8 +31,8 @@ object nota {
 
   method agarrar() {
     personaje.conseguirObjeto(self)
+    objetosObtenidos.add(self)
     game.removeVisual(self)
-    puertaPasilloPiso2HaciaHabitacion202.removerDeObjetosAAgregar(self)
   }
 }
 

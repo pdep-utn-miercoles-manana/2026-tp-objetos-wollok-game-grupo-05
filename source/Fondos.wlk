@@ -13,6 +13,7 @@ class Fondo {
 }
 
 const fondoInicio = new Fondo (imagen = "InicioConPresionarEnter.png")
+const fondoCreditos = new Fondo(imagen = "Creditos.png")
 const fondoSeleccionDePersonaje = new Fondo (imagen = "SeleccionDePersonajeHombre.png")
 const fondoHabitacion = new Fondo (imagen = "Habitacion.png")
 const fondoHabitacion148 = new Fondo (imagen = "Habitacion148.png")

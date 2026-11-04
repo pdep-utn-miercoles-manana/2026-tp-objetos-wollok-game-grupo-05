@@ -35,7 +35,7 @@ class Npc {
     }
   }
 
-  method reiniciarDialogo() {
+  method reiniciar() {
     dialogo.reiniciar()
   }
 }

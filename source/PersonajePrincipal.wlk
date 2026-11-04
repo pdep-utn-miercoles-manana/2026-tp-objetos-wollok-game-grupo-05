@@ -27,7 +27,7 @@ object personaje {
     vidas = 3
     derrotado = false
     orientacion = abajo
-    estadoDelJuego.continuarDespuesDeMorir()
+    estadoDelJuego.reiniciarJuego()
   }
 
   // Elegir la opcion de personaje con el menu de seleccion
@@ -38,6 +38,11 @@ object personaje {
   // Cambiar la orientacion del personaje
   method mirarA(nuevaOrientacion) {
     orientacion = nuevaOrientacion
+  }
+
+  method posicionDeLaVictoria(){
+    position = game.center()
+    orientacion = abajo
   }
 
   // Cambiar la ubicacion del personaje

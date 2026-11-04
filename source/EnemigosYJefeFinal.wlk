@@ -1,5 +1,7 @@
+import Dialogos.*
 import Direcciones.*
 import Mapa.*
+import Menus.*
 import PersonajePrincipal.*
 
 object jefeFinal {
@@ -18,6 +20,8 @@ object jefeFinal {
       self.detenerAtaque()
       game.removeVisual(self)
       game.say(unPersonaje, "¡Derroté al enemigo!")
+      unPersonaje.posicionDeLaVictoria()
+      game.schedule(10000, { creditos.mostrar() })
     }
   }
 
@@ -58,6 +62,8 @@ class Proyectil {
   method image() = "Proyectil.png"
 
   method esSolido() = false
+
+  method interactuar(unPersonaje) {}
 
   method recibirColisionDe(unPersonaje) {}
 

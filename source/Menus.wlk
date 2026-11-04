@@ -76,3 +76,11 @@ object menuSeleccionDePersonaje {
     mapa.primeraUbicacion()
   }
 }
+
+object creditos {
+
+  method mostrar() {
+    game.allVisuals().forEach({ visual => game.removeVisual(visual) })
+    mapa.cambiarFondo(fondoCreditos)
+  }
+}
