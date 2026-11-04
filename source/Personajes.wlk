@@ -45,9 +45,11 @@ const secretaria = new Npc(
   imagen = "Secretaria",
   dialogo = new Dialogo(
     lineas = [
-      new LineaDelNpc(texto = "Estas buscando algo?"),
-      new LineaDelPersonaje(texto = "Sí, investigo una desaparicion"),
-      new LineaDelNpc(texto = "Quizas encuentres algo en la habitacion 202, el de lentes te puede ayudar")
+      new LineaDelNpc(texto = "¿Estas buscando algo?"),
+      new LineaDelPersonaje(texto = "No recuerdo nada, nisiquiera como llegue a este lugar."),
+      new LineaDelNpc(texto = "..."),
+      new LineaDelNpc(texto = "Deberias de buscar la habitacion 202."),
+      new LineaDelNpc(texto = "...")
     ],
     objetivo = hablarConSecretaria
   )
@@ -58,11 +60,13 @@ const huespedRaro = new Npc(
   imagen = "HuespedRaro",
   dialogo = new DialogoConEfecto(
     lineas = [
-      new LineaDelNpc(texto = "Tengo llave de la habitacion 202"),
-      new LineaDelPersonaje(texto = "¿En serio? ¿Podrías dármela?"),
-      new LineaDelNpc(texto = "No es seguro que entres allí"),
-      new LineaDelPersonaje(texto = "La necesito para resolver un caso"),
-      new LineaDelNpc(texto = "Toma, pero recuerda que te lo advertí")
+      new LineaDelNpc(texto = "¿Aun no recuerdas?"),
+      new LineaDelPersonaje(texto = "¿Recordar el que?"),
+      new LineaDelNpc(texto = "..."),
+      new LineaDelNpc(texto = "Tengo la llave de la habitacion 202, quizas te sirva."),
+      new LineaDelNpc(texto = "Pero te advierto ten cuidado al entrar."),
+      new LineaDelNpc(texto = "Puede que encuentres algo que te sirva alli."),
+      new LineaDelNpc(texto = "...")
     ],
     objetivo = buscarLaHabitacion202,
     efecto = {

@@ -1,5 +1,81 @@
 import Direcciones.*
+import Mapa.*
 import PersonajePrincipal.*
+
+object jefeFinal {
+  var property position = game.at(11, 3)
+  const ubicacion = habitacionJefe
+
+  method image() = "JefeFinal.png"
+
+  method esSolido() = true
+
+  method recibirColisionDe(unPersonaje) {}
+
+  method interactuar(unPersonaje) {
+    // Si el personaje está a 1 de distancia puede atacar y vencer al jefe
+    if (self.position().distance(unPersonaje.position()) <= 1) {
+      self.detenerAtaque()
+      game.removeVisual(self)
+      game.say(unPersonaje, "¡Derroté al enemigo!")
+    }
+  }
+
+  method comenzarAtaque() {
+    game.onTick(1000, "LanzarAtaque", { self.atacar() })
+  }
+
+  // Si al atacar el personaje esta en una altura distinta,
+  // el jefe se posiciona en la altura que esta el y ataca
+  method atacar() {
+    const posicionJefeEnX = position.x()
+    const posicionJefeEnY = position.y()
+    const posicionDePersonajeEnY = personaje.position().y()
+
+    if(posicionDePersonajeEnY != posicionJefeEnY){
+      position = game.at(posicionJefeEnX, posicionDePersonajeEnY)
+    }
+
+    const posicionDeNuevoProyectil = game.at(posicionJefeEnX, posicionJefeEnY)
+
+    self.lanzarProyectil(posicionDeNuevoProyectil)
+  }
+
+  method lanzarProyectil(posicionDeNuevoProyectil) {
+      const nuevoProyectil = new Proyectil(position = posicionDeNuevoProyectil)
+      game.addVisual(nuevoProyectil)
+      nuevoProyectil.avanzarEn(ubicacion)
+  }
+
+  method detenerAtaque() {
+    game.removeTickEvent("LanzarAtaque")
+  }
+}
+
+class Proyectil {
+  var property position
+
+  method image() = "Proyectil.png"
+
+  method esSolido() = false
+
+  method recibirColisionDe(unPersonaje) {}
+
+  method avanzarEn(unaHabitacion) {
+    const nuevaPosicion = position.left(1)
+
+    if(nuevaPosicion == personaje.position()) {
+      personaje.perderVida()
+      game.removeVisual(self)
+    } else if (unaHabitacion.esPosicionValida(nuevaPosicion)) {
+      position = nuevaPosicion
+      game.schedule(300, { self.avanzarEn(unaHabitacion)} )
+    } else {
+      game.removeVisual(self)
+    }
+  }
+
+}
 
 object enemigo {
   var property position = game.at(7,5)
@@ -50,7 +126,7 @@ object enemigo {
   }
 
   // Activa al enemigo
-  method iniciarMovimiento() {
+  method comenzarAtaque() {
     game.onTick(500, "MovimientoEnemigo", { 
       self.detectar()
       self.atacar() 
@@ -58,7 +134,7 @@ object enemigo {
   }
 
   // Desactiva al enemigo
-  method detenerMovimiento() {
+  method detenerAtaque() {
     if (game.hasVisual(self)) {
       game.removeTickEvent("MovimientoEnemigo")
     }

@@ -19,7 +19,16 @@ object nota {
   method image() = "written_paper.png"
 
   method recibirColisionDe(personaje) {
+    if(personaje.tieneObjeto(self).negate()){
+      self.agarrar()
+      progreso.completar(investigarLaHabitacion202)
+    } 
+  }
+
+  method agarrar() {
     personaje.conseguirObjeto(self)
+    game.removeVisual(self)
+    puertaPasilloPiso2HaciaHabitacion202.removerDeObjetosAAgregar(self)
   }
 }
 
@@ -38,7 +47,7 @@ object cajaFuerte {
 
   // Tecla E (solo una vez que la historia llego a este punto)
   method interactuar(unPersonaje) {
-    if (progreso.alcanzo(abrirLaCajaFuerte)) {
+    if (progreso.alcanzo(seguirIndicacionesDeLaNota)) {
       estado.interactuar(self)
     }
   }
@@ -53,7 +62,7 @@ object cajaFuerte {
   method comenzarIngreso() {
     codigoIngresado = ""
     estado = cajaIngresandoCodigo
-    game.say(personaje, "Ingresa el codigo y confirma con E")
+    game.say(personaje, "(Ingrese el codigo y confirme con E)")
   }
 
   method agregarDigito(unDigito) {
@@ -64,7 +73,9 @@ object cajaFuerte {
   method confirmarCodigo() {
     if (codigoIngresado == codigoCorrecto) {
       estado = cajaAbierta
-      pantalla.mostrarDurante(textoConseguirOfrendas, 3000)
+      pantalla.mostrarDurante(textoCajaFuerteAbierta, 2000)
+      progreso.completar(seguirIndicacionesDeLaNota)
+      game.say(personaje, "(Presione E para agarrar las ofrendas)")
     } else {
       estado = cajaCerrada
       game.say(personaje, "Este codigo no funciona")
@@ -84,16 +95,19 @@ object cajaIngresandoCodigo {
   method ingresarDigito(unaCaja, unDigito) { unaCaja.agregarDigito(unDigito) }
 }
 
-// Abierta: E lee el expediente que estaba guardado adentro
+// Abierta: E agarra las ofrendas que estaban guardadas adentro
 object cajaAbierta {
   method interactuar(unaCaja) { ofrendas.recoger() }
   method ingresarDigito(unaCaja, unDigito) {}
 }
 
 // Las ofrendas guardadas en la caja fuerte. Al ingresar 
-// el codigo  correctamente el personaje las recoge
+// el codigo correctamente el personaje las recoge
 object ofrendas {
   method recoger() {
-    personaje.conseguirObjeto(self)
+    if(personaje.tieneObjeto(self).negate()){
+      pantalla.mostrarDurante(textoConseguirOfrendas, 3000)
+      personaje.conseguirObjeto(self)
+    }
   }
 }

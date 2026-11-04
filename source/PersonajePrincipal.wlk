@@ -45,6 +45,9 @@ object personaje {
     ubicacionActual = nuevaUbicacion
   }
 
+  // UbicacionActual del personaje
+  method ubicacionActual() = ubicacionActual
+
   // Conseguir un objeto
   method conseguirObjeto(unObjeto) {
     objetos.add(unObjeto)
@@ -53,6 +56,10 @@ object personaje {
   // Perder todos los objetos
   method perderObjetos() {
     objetos.clear()
+  }
+
+  method perder(unObjeto) {
+    objetos.remove(unObjeto)
   }
 
   // Saber si el personaje tiene un objeto
@@ -203,4 +210,8 @@ object caminando {
 
 object soloGirando {
   method mover(unPersonaje, direccion) { unPersonaje.mirarA(direccion) }
+}
+
+object quieto {
+  method mover(unPersonaje, direccion) { }
 }

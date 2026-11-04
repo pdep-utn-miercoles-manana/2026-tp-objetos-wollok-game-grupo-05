@@ -17,6 +17,7 @@ const fondoSeleccionDePersonaje = new Fondo (imagen = "SeleccionDePersonajeHombr
 const fondoHabitacion = new Fondo (imagen = "Habitacion.png")
 const fondoHabitacion148 = new Fondo (imagen = "Habitacion148.png")
 const fondoHabitacionJefe = new Fondo (imagen = "HabitacionJefe.png")
+const fondoPasilloJefeConOfrendas = new Fondo(imagen = "PasilloJefeConOfrendas.png")
 const fondoPasilloJefe = new Fondo (imagen = "PasilloJefe.png")
 const fondoPasilloSubsuelo = new Fondo (imagen = "PasilloSubsuelo.png")
 const fondoPasilloPiso1 = new Fondo (imagen = "PasilloPiso1.png")

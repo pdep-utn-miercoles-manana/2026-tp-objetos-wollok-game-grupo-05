@@ -1,13 +1,18 @@
+import Dialogos.*
+import Direcciones.*
 import EnemigosYJefeFinal.*
 import EstadoDelJuego.*
 import Fondos.*
 import Objetos.*
 import PersonajePrincipal.*
 import Personajes.*
+import Progreso.*
 import TextosEnPantalla.*
 
 object mapa {
   var fondoActual = fondoHabitacion148
+  const objetosActuales = []
+  const enemigosActivos = [jefeFinal, enemigo]
 
   method primeraUbicacion() { 
     // Usamos addVisual en vez de addVisualCharacter para tener control total del movimiento
@@ -24,8 +29,22 @@ object mapa {
   }
 
   method cambiarObjetosDeUbicacion(objetosAAgregar, objetosAEliminar) {
-    objetosAEliminar.forEach({ objeto => game.removeVisual(objeto)})
-    objetosAAgregar.forEach({ objeto => game.addVisual(objeto)})
+    objetosAEliminar.forEach({ objeto => 
+      if (game.allVisuals().contains(objeto)) {
+        game.removeVisual(objeto)
+      }
+
+      if (objetosActuales.contains(objeto)) {
+        objetosActuales.remove(objeto)
+      }
+    })
+
+    objetosAAgregar.forEach({ objeto => 
+      game.addVisual(objeto)
+      if (!objetosActuales.contains(objeto)) {
+        objetosActuales.add(objeto)
+      }
+    })
   }
 
   method cambiarFondo(fondoNuevo){
@@ -43,8 +62,10 @@ object mapa {
     game.addVisual(vidasVisual)
   }
 
-  method reiniciarJuegoDesde202() {
-    enemigo.detenerMovimiento()
+  method reiniciarJuegoDesde(unaUbicacion) {
+    self.detenerTodosLosAtaques()
+    self.limpiarHabitacionActual()
+
     self.configurarUbicacion(
       fondoHabitacion148, 
       [puerta148HaciaPasilloJefe, puerta148HaciaPasilloPiso1], 
@@ -53,6 +74,84 @@ object mapa {
 
     personaje.position(game.center())
     personaje.cambiarUbicacion(habitacion)
+  }
+
+  method detenerTodosLosAtaques() {
+    enemigosActivos.forEach({ unEnemigo => unEnemigo.detenerAtaque() })
+  }
+
+  method limpiarHabitacionActual() {
+    objetosActuales.forEach({ objeto => 
+      if (game.allVisuals().contains(objeto)) {
+        game.removeVisual(objeto)
+      }
+    })
+    objetosActuales.clear()
+  }
+}
+
+object casillaCharlaJefe {
+  const property position = game.at(3, 3)
+  var charlaIniciada = false
+  const dialogo = new DialogoConEfecto(
+      lineas = [
+      new LineaDelNpc(texto = "Has llegado a la sala Final.."),
+      new LineaDelNpc(texto = "¿Tienes lo necesario para derrotarme?"),
+      new LineaDelPersonaje(texto = "No lo sabre hasta que lo intente"),
+      new LineaDelNpc(texto = "¡Entonces ven a por mí!")
+    ],
+    objetivo = derrotarAlJefe,
+    efecto = { jefeFinal.comenzarAtaque() }
+  )
+
+  method esSolido() = false
+
+  method image() = "CasillaInvisible.png"
+  
+  // Al posicionarse sobre la casilla inicia una charla con el jefe
+  method recibirColisionDe(unPersonaje) {
+    if (!charlaIniciada) {
+      unPersonaje.cambiarModoDeMovimiento(quieto)
+      charlaIniciada = true
+      unPersonaje.mirarA(derecha)
+      self.avanzarDialogoAutomatico(unPersonaje)
+    }
+  }
+
+  method avanzarDialogoAutomatico(unPersonaje) {
+    if (!dialogo.estaEnLaUltimaLinea()) {
+      dialogo.decirSiguiente(jefeFinal)
+      game.schedule(2500, { self.avanzarDialogoAutomatico(unPersonaje) })
+    } else {
+      // Forzamos a que se imprima la última línea que faltaba mostrarse
+      dialogo.decirSiguiente(jefeFinal)
+      unPersonaje.cambiarModoDeMovimiento(caminando)
+    }
+  }
+}
+
+object casillaColocarOfrendas {
+  const property position = game.at(7, 3)
+  
+  method image() = "CasillaInvisible.png"
+
+  method esSolido() = false
+
+  method interactuar(unPersonaje) {
+    if (unPersonaje.tieneObjeto(ofrendas)) {
+      mapa.cambiarFondo(fondoPasilloJefeConOfrendas)
+      mapa.cambiarObjetosDeUbicacion([puertaPasilloJefeHaciaHabitacionJefe], [puertaPasilloJefeHacia148])
+      mapa.restablecerPersonajeYPista()
+      unPersonaje.perder(ofrendas)
+      progreso.completar(buscarDondeUsarLasOfrendas)
+      game.say(unPersonaje, "¡Ofrendas colocadas con éxito!")
+    }
+  }
+
+  method recibirColisionDe(unPersonaje) {
+    if (unPersonaje.tieneObjeto(ofrendas)) {
+      game.say(unPersonaje, "Presiona E para colocar las ofrendas")
+    }
   }
 }
 
@@ -75,7 +174,7 @@ class Ubicacion {
 const pasillo = new Ubicacion (anchoMin = 1, anchoMax = 13, alturaMin = 2, alturaMax = 3)
 const pasilloJefe = new Ubicacion (anchoMin = 6, anchoMax = 8, alturaMin = 0, alturaMax = 5)
 const habitacion = new Ubicacion (anchoMin = 4, anchoMax = 10, alturaMin = 0, alturaMax = 5)
-const habitacionJefe = new Ubicacion (anchoMin = 2, anchoMax = 12, alturaMin = 0, alturaMax = 5)
+const habitacionJefe = new Ubicacion (anchoMin = 2, anchoMax = 10, alturaMin = 0, alturaMax = 5)
 
 // El orden en que se ponen los objetos a agregar importa
 class PuntoDeAcceso {
@@ -104,11 +203,15 @@ class PuntoDeAcceso {
     accesoDisponible = false
   }
 
+  method removerDeObjetosAAgregar(unObjeto) {
+    objetosAAgregar.remove(unObjeto)
+  }
+
   method recibirColisionDe(unPersonaje) {
     if(accesoDisponible){
 
       if (objetosAEliminar.contains(enemigo)) {
-        enemigo.detenerMovimiento()
+        enemigo.detenerAtaque()
       }
 
       mapa.configurarUbicacion(fondoDestino, objetosAAgregar, objetosAEliminar)
@@ -116,10 +219,10 @@ class PuntoDeAcceso {
       personaje.position(game.at(posicionNuevaPersonajeX, posicionNuevaPersonajeY))
 
       if (objetosAAgregar.contains(enemigo)) {
-        enemigo.iniciarMovimiento()
+        enemigo.comenzarAtaque()
       }
     } else {
-      game.say(personaje, "Necesito la llave para entrar")
+      game.say(personaje, "Parece que esta cerrada.")
     }
     
   }
@@ -128,12 +231,11 @@ class PuntoDeAcceso {
 // Puerta entre la el pasillo del jefe y la habitacion del Jefe
 const puertaPasilloJefeHaciaHabitacionJefe = new PuntoDeAcceso (
   position = game.at(7, 5),
-  objetosAAgregar = [],
-  objetosAEliminar = [puertaPasilloJefeHaciaHabitacionJefe,
-                      puertaPasilloJefeHacia148],
+  objetosAAgregar = [casillaCharlaJefe, jefeFinal],
+  objetosAEliminar = [puertaPasilloJefeHaciaHabitacionJefe],
   fondoDestino = fondoHabitacionJefe,
   posicionNuevaPersonajeX = 3,
-  posicionNuevaPersonajeY = 1,
+  posicionNuevaPersonajeY = 3,
   nuevaUbicacion = habitacionJefe,
   imagen = "Puerta_horizontal.png"
 )
@@ -142,7 +244,7 @@ const puertaPasilloJefeHaciaHabitacionJefe = new PuntoDeAcceso (
 const puerta148HaciaPasilloJefe = new PuntoDeAcceso (
   position = game.at(7, 5),
   objetosAAgregar = [puertaPasilloJefeHacia148,
-                     puertaPasilloJefeHaciaHabitacionJefe],
+                     casillaColocarOfrendas],
   objetosAEliminar = [puerta148HaciaPasilloPiso1, 
                       puerta148HaciaPasilloJefe],
   fondoDestino = fondoPasilloJefe,
@@ -156,7 +258,8 @@ const puertaPasilloJefeHacia148 = new PuntoDeAcceso (
   position = game.at(7,0),
   objetosAAgregar = [puerta148HaciaPasilloPiso1, 
                      puerta148HaciaPasilloJefe],
-  objetosAEliminar = [puertaPasilloJefeHacia148],
+  objetosAEliminar = [puertaPasilloJefeHacia148,
+                      casillaColocarOfrendas],
   fondoDestino = fondoHabitacion148,
   posicionNuevaPersonajeX = 7,
   posicionNuevaPersonajeY = 4,

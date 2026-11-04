@@ -25,17 +25,29 @@ class TextoEnPantalla {
 const textoConseguirLlave = new TextoEnPantalla (
   posicion = game.at(2,5),
   texto = "Obtuviste: Llave de la Habitacion 202",
-  colorTexto = colores.verde()
+  colorTexto = colores.blanco()
+)
+
+const textoCajaFuerteAbierta = new TextoEnPantalla (
+  posicion = game.at(7,4),
+  texto = "¡Has abierto la caja fuerte!",
+  colorTexto = colores.blanco()
 )
 
 const textoConseguirOfrendas = new TextoEnPantalla (
-  posicion = game.center(),
+  posicion = game.at(7,4),
   texto = "Obtuviste: Ofrendas de los 4 altares",
-  colorTexto = colores.verde()
+  colorTexto = colores.blanco()
+)
+
+const textoColocarOfrendas = new TextoEnPantalla (
+  posicion = game.at(7, 4),
+  texto = "Presionar E para colocar las ofrendas",
+  colorTexto = colores.blanco()
 )
 
 const textoPista = new TextoEnPantalla (
-  posicion = game.at(2, 6), 
+  posicion = game.at(11, 0), 
   texto = "Objetivo: Habla con algun huesped",
   colorTexto = colores.blanco()
 ) 

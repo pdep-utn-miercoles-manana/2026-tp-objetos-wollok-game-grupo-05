@@ -11,10 +11,11 @@ class Objetivo {
 
 const hablarConSecretaria = new Objetivo(descripcion = "Habla con la secretaria")
 const buscarLaHabitacion202 = new Objetivo(descripcion = "Busca la habitacion 202")
-const irAlDeposito = new Objetivo(descripcion = "Ve al deposito")
-const abrirLaCajaFuerte = new Objetivo(descripcion = "Busca la caja fuerte")
-const entrarALa202 = new Objetivo(descripcion = "Busca como entrar a la habitacion 202")
-const investigarLa202 = new Objetivo(descripcion = "Encuentra alguna pista en la habitacion 202")
+const investigarLaHabitacion202 = new Objetivo(descripcion = "Investiga que hay dentro de la habitacion 202")
+const seguirIndicacionesDeLaNota = new Objetivo(descripcion = "En la nota aparece un codigo '3591', busca donde usarlo")
+const buscarDondeUsarLasOfrendas = new Objetivo(descripcion = "Has obtenido 4 ofrendas, busca el lugar indicado para usarlas")
+
+const derrotarAlJefe = new Objetivo(descripcion = "Derrota al Jefe para escapar del hotel")
 
 // Lleva la cuenta de en que parte de la historia esta el jugador.
 // Solo se puede hacer lo del objetivo actual (o lo de objetivos ya cumplidos);
@@ -24,9 +25,9 @@ object progreso {
   const objetivos = [
     hablarConSecretaria,
     buscarLaHabitacion202,
-    abrirLaCajaFuerte,
-    entrarALa202,
-    investigarLa202
+    investigarLaHabitacion202,
+    seguirIndicacionesDeLaNota,
+    buscarDondeUsarLasOfrendas
   ]
 
   const cumplidos = #{}

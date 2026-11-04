@@ -1,20 +1,23 @@
+import EnemigosYJefeFinal.*
 import Mapa.*
+import Objetos.*
+import PersonajePrincipal.*
 import Personajes.*
 import TextosEnPantalla.*
 
 object estadoDelJuego {
-  const personajes = [secretaria, huespedRaro, secretaria]
+  const objetos = [jefeFinal, secretaria, huespedRaro, secretaria, cajaFuerte]
   const puntosDeAccesoConLlave = [puertaPasilloPiso2HaciaHabitacion202]
 
   method reiniciarDialogosDePersonajes() {
-    personajes.forEach({ p => p.reiniciarDialogo() })
+    objetos.forEach({ o => o.reiniciarDialogo() })
   }
 
   // Metodo para continuar despues de morir y reiniciar estado del juego
   method continuarDespuesDeMorir() {
       game.removeVisual(textoDerrota)
       vidasVisual.cambiarVidas(3)
-      mapa.reiniciarJuegoDesde202()
+      mapa.reiniciarJuegoDesde(personaje.ubicacionActual())
       self.reiniciarDialogosDePersonajes()
 
       self.bloquearPuntosDeAcceso()
