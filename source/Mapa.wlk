@@ -124,6 +124,7 @@ object casillaCharlaJefe {
       charlaIniciada = true
       unPersonaje.mirarA(derecha)
       self.avanzarDialogoAutomatico(unPersonaje)
+      
     }
   }
 
@@ -138,6 +139,11 @@ object casillaCharlaJefe {
       game.addVisual(textoVencerAlJefe)
       game.schedule(3000, { game.removeVisual(textoVencerAlJefe) })
     }
+  }
+
+  method reiniciar() {
+    charlaIniciada = false
+    dialogo.reiniciar()
   }
 }
 

@@ -7,7 +7,9 @@ import Progreso.*
 import TextosEnPantalla.*
 
 object estadoDelJuego {
-  const objetosAReiniciar = [secretaria, huespedRaro, secretaria, llave202]
+  const objetosAReiniciar = [cajaFuerte, secretaria, huespedRaro, 
+                             secretaria, llave202, jefeFinal, 
+                             enemigo, casillaCharlaJefe]
   const puntosDeAccesoConLlave = [puertaPasilloPiso2HaciaHabitacion202]
 
   method reiniciarJuego() {

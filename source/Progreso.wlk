@@ -14,7 +14,7 @@ const buscarLaHabitacion202 = new Objetivo(descripcion = "Busca la habitacion 20
 const investigarLaHabitacion202 = new Objetivo(descripcion = "Investiga que hay dentro de la habitacion 202")
 const seguirIndicacionesDeLaNota = new Objetivo(descripcion = "En la nota aparece un codigo '3951', busca donde usarlo")
 const buscarDondeUsarLasOfrendas = new Objetivo(descripcion = "Has obtenido 4 ofrendas, busca el lugar indicado para usarlas")
-const derrotarAlJefe = new Objetivo(descripcion = "Derrota al Jefe para escapar del hotel")
+const derrotarAlJefe = new Objetivo(descripcion = "Enfrenta tu destino")
 
 // Lleva la cuenta de en que parte de la historia esta el jugador.
 // Solo se puede hacer lo del objetivo actual (o lo de objetivos ya cumplidos);
@@ -26,7 +26,8 @@ object progreso {
     buscarLaHabitacion202,
     investigarLaHabitacion202,
     seguirIndicacionesDeLaNota,
-    buscarDondeUsarLasOfrendas
+    buscarDondeUsarLasOfrendas,
+    derrotarAlJefe
   ]
 
   const cumplidos = #{}

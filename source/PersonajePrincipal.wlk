@@ -201,11 +201,13 @@ object personaje {
       keyboard.num(numero).onPressDo({ cajaFuerte.ingresarCodigo(numero.toString()) })
     })
     keyboard.enter().onPressDo({
-      if (!derrotado) {
+      if (!derrotado and self.estaCercaDe(cajaFuerte)) {
         cajaFuerte.confirmarCodigo()
       }
     })
   }
+
+  method estaCercaDe(unObjeto) = self.position().distance(unObjeto.position()) < 1
 }
 
 // Modos de movimiento: las flechas hacen algo distinto segun el modo (polimorfismo)

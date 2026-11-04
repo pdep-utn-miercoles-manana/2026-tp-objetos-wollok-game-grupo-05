@@ -39,11 +39,12 @@ object nota {
 // La caja fuerte cambia de comportamiento segun su estado (cerrada, ingresando el codigo
 // o abierta). En vez de preguntar con if por variables booleanas, le delega al estado actual.
 object cajaFuerte {
+  var property position = game.center()
   const codigoCorrecto = "3951"
   var codigoIngresado = ""
   var estado = cajaCerrada
-
-  var property position = game.center()
+  
+  method estado() = estado
 
   method esSolido() = true
 
@@ -84,6 +85,10 @@ object cajaFuerte {
       estado = cajaCerrada
       game.say(personaje, "Este codigo no funciona")
     }
+  }
+
+  method reiniciar() {
+    estado = cajaCerrada
   }
 }
 

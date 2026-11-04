@@ -4,8 +4,16 @@ import Mapa.*
 import Menus.*
 import PersonajePrincipal.*
 
-object jefeFinal {
-  var property position = game.at(11, 3)
+class Enemigo{
+  var property position 
+  const posicionInicial
+
+  method reiniciar() {
+      position = posicionInicial
+  }
+}
+
+object jefeFinal inherits Enemigo (position = game.at(11, 3), posicionInicial = game.at(11,3)){
   const ubicacion = habitacionJefe
 
   method image() = "JefeFinal.png"
@@ -83,8 +91,7 @@ class Proyectil {
 
 }
 
-object enemigo {
-  var property position = game.at(7,5)
+object enemigo inherits Enemigo(position = game.at(7, 5), posicionInicial = game.at(7, 5)){
   var orientacion = abajo
   var puedeAtacar = true
   const esSolido = true
@@ -92,6 +99,10 @@ object enemigo {
   method esSolido() = esSolido
   method image() = "Enemigo_" + orientacion.nombre()  + ".png"
 
+  override method reiniciar() {
+    super()
+    orientacion = abajo
+  }
   // Al recibir colision del personaje o si intenta 
   // interactura no hace nada
   method recibirColisionDe(unPersonaje) {}
@@ -133,7 +144,7 @@ object enemigo {
 
   // Activa al enemigo
   method comenzarAtaque() {
-    game.onTick(500, "MovimientoEnemigo", { 
+    game.onTick(1000, "MovimientoEnemigo", { 
       self.detectar()
       self.atacar() 
     })
